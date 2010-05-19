@@ -2,8 +2,6 @@ package org.furb.cg;
 
 import java.awt.EventQueue;
 
-import org.furb.cg.loader.MapParse;
-
 public class Main {
 	
 	public static void main(String[] args)
