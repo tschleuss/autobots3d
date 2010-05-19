@@ -1,4 +1,4 @@
-package org.furb.cg.engine;
+package org.furb.cg.engine.structs;
 
 import java.io.Serializable;
 

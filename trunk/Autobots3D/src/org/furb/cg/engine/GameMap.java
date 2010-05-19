@@ -2,6 +2,9 @@ package org.furb.cg.engine;
 
 import java.io.Serializable;
 
+import org.furb.cg.engine.heuristica.RastreadorCaminho;
+import org.furb.cg.engine.structs.Caminho;
+import org.furb.cg.engine.structs.Mover;
 import org.furb.cg.util.TipoTerreno;
 
 public class GameMap implements Serializable {
@@ -20,6 +23,23 @@ public class GameMap implements Serializable {
 		loadBotPosition();
 	}
 
+	public Caminho getFasterPath(int origemX, int origemY, int destinoX, int destinoY){
+		
+		int tipo = this.getUnit(destinoX, origemY);
+		Mover m = new Mover(tipo);
+		
+		return getPath(m,destinoY, destinoY, origemX, origemY );
+		
+	}
+	
+	private Caminho getPath(Mover mover,int origemX, int origemY, int destinoX, int destinoY){
+
+		RastreadorCaminho finder = new RastreadorCaminho(this, 500, true);
+		Caminho caminho = finder.findPath(mover, destinoX, destinoY, origemX, origemY,true);
+		
+		return caminho;
+	}
+	
 	private void loadBotPosition() {
 		
 //		botPosition bp;
