@@ -10,7 +10,7 @@ public class MapParse {
 	
 	private URL source =  null;
 	private MapConfig mc = null;
-	private String[] map = null;
+	private int[][] map = null;
 	
 	public MapParse(){
 		
@@ -25,34 +25,37 @@ public class MapParse {
 	
     public int[][] getMap(){
         
-    	this.mc = this.loadMap();
-    	
-    	String[] mapVetor = this.mc.caminho.split("\n");
-    	
-    	int[][]map = new int[this.mc.linhas][this.mc.colunas];
-    	
-    	int lineNumber = 0;
+    	if(this.map == null){
+        	this.mc = this.loadMap();
+        	
+        	String[] mapVetor = this.mc.caminho.split("\n");
+        	
+        	this.map = new int[this.mc.linhas][this.mc.colunas];
+        	
+        	int lineNumber = 0;
 
-		for (String line : mapVetor) {
-			for(int i = 0; i < this.mc.colunas;i++ ){
-				map[lineNumber][i] = Integer.parseInt(Character.toString(line.charAt(i)));
-			}
-			lineNumber++;
-		}    	
+    		for (String line : mapVetor) {
+    			for(int i = 0; i < this.mc.colunas;i++ ){
+    				map[lineNumber][i] = Integer.parseInt(Character.toString(line.charAt(i)));
+    			}
+    			lineNumber++;
+    		} 
+    		
+    	}	
     	
 		return map;	
     }
 	
     private MapConfig loadMap() {
     	
-    	this.map = readMap();
+    	String[] map = readMap();
     	String printMap = "";
     	
     	int qtdLinhas = 0;
     	int qtdColunas = 0;
     	
-    	if(this.map != null){
-    		for (String mapLine : this.map) {
+    	if(map != null){
+    		for (String mapLine : map) {
     			
     			mapLine = mapLine.replaceAll("\\s", "");
     			
