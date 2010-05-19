@@ -3,105 +3,98 @@ package org.furb.cg.loader;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.furb.cg.loader.structs.MapConfig;
 
 public class MapParse {
 	
-	private URL source =  null;
-	private MapConfig mc = null;
-	private int[][] map = null;
+	private URL			source	=  null;
+	private MapConfig	mc		= null;
+	private int[][]		map		= null;
 	
-	public MapParse(){
-		
+	public MapParse() 
+	{
 		try {
 			
 			this.source = new URL("file:src/org/furb/cg/resources/maps.list");
 			
 		} catch(Exception e) {
-			System.err.println("Arquivo maps.list não encontrado. Exception: "+e);
+			e.printStackTrace();
 		}
 	}
 	
-    public int[][] getMap(){
-        
-    	if(this.map == null){
-        	this.mc = this.loadMap();
-        	
-        	String[] mapVetor = this.mc.caminho.split("\n");
-        	
-        	this.map = new int[this.mc.linhas][this.mc.colunas];
-        	
-        	int lineNumber = 0;
-
-    		for (String line : mapVetor) {
-    			for(int i = 0; i < this.mc.colunas;i++ ){
-    				map[lineNumber][i] = Integer.parseInt(Character.toString(line.charAt(i)));
-    			}
-    			lineNumber++;
-    		} 
-    		
-    	}	
-    	
-		return map;	
+	/**
+	 * Carrega o mapa e retorna
+	 * um vetor de int com os valores
+	 * do mapa.
+	 * @return
+	 */
+    public int[][] getMap()
+    {    
+    	this.loadMap();
+    	return map;
     }
 	
-    private MapConfig loadMap() {
-    	
-    	String[] map = readMap();
-    	String printMap = "";
-    	
-    	int qtdLinhas = 0;
-    	int qtdColunas = 0;
-    	
-    	if(map != null){
-    		for (String mapLine : map) {
-    			
-    			mapLine = mapLine.replaceAll("\\s", "");
-    			
-    			if(!mapLine.equals("")){
-    				printMap += mapLine + "\n";
-    				qtdLinhas++;
-    				
-    				if(mapLine.length() > qtdColunas)
-    					qtdColunas = mapLine.length();
-    			}
-			}
-    	}
-    	
-    	this.mc = new MapConfig();
-    	
-    	mc.caminho = printMap;
-    	mc.linhas = qtdLinhas;
-    	mc.colunas = qtdColunas;
-    	
-        return mc;
+    /**
+     * Criar o objeto map config
+     * com as propriedades do mapa
+     * carregadas do arquivo de texto
+     * @return
+     */
+    private void loadMap() 
+    {	
+    	map = this.readMap();
+ 
+    	mc = new MapConfig();
+    	mc.setMap( map );
+    	mc.setColunas( map.length );
+    	mc.setLinhas( map[0].length );
     }
     
-	private String[] readMap() {
-		String[] selectedMap = null;
+    /**
+     * Le o arquivo com o mapa e popula
+     * os valores em um vetor de int.
+     * @return
+     */
+	private int[][] readMap() 
+	{
+		List<String>	mapLines = null;
+		int[][]			map = null;
+		BufferedReader	in = null;
+		String			line = null;
 		
 		try {
-			StringBuffer lines = new StringBuffer("");
-			BufferedReader in = new BufferedReader(new InputStreamReader(this.source.openStream()));
-			String line;
 			
-			while(null != (line = in.readLine())) {
-				if (line.length() > 0 && line.charAt(0) != '/') {
-					lines.append(line).append("\n");
+			//Carrega a lista com as linhas do mapa
+			mapLines = new ArrayList<String>();
+			
+			in = new BufferedReader( new InputStreamReader( this.source.openStream() ) );
+			
+			while( (line = in.readLine()) != null ) 
+			{
+				mapLines.add(line);
+			}
+			
+			//Carrega o vetor que vai armazenar o mapa
+			map = new int[mapLines.get(0).length()][mapLines.size()];
+			
+			//Ppula o vetor com os valores do mapa
+			for (int y = 0; y < mapLines.size(); y++ ) 
+			{
+				final String currentLine = mapLines.get(y);
+				
+				for( int x = 0; x < currentLine.length(); x++ )
+				{
+					map[y][x] = Integer.valueOf(currentLine.charAt(x));
 				}
 			}
 			
-			String[] maps = lines.toString().split("MAP");
-			int mapID = 1 + (int)(Math.random() * maps.length-1); 
-			
-			selectedMap = maps[mapID].split("\n");
-			
 		} catch(Exception e) {
-			System.err.println("Arquivo maps.list não encontrado. Exception: "+e);
+			e.printStackTrace();
 		}
 
-		return selectedMap;
+		return map;
 	} 
-	
 }
