@@ -5,6 +5,7 @@ import java.io.Serializable;
 import org.furb.cg.engine.heuristica.RastreadorCaminho;
 import org.furb.cg.engine.structs.Caminho;
 import org.furb.cg.engine.structs.Mover;
+import org.furb.cg.loader.MapParse;
 import org.furb.cg.util.TipoTerreno;
 
 public class GameMap implements Serializable {
@@ -18,24 +19,26 @@ public class GameMap implements Serializable {
 	private int[][]		units		= new int[WIDTH][HEIGHT];
 	private boolean[][]	visited		= new boolean[WIDTH][HEIGHT];
 
-	public GameMap(String serverHost) {
+	public GameMap() {
 		loadMap();
 		loadBotPosition();
 	}
 
 	public Caminho getFasterPath(int origemX, int origemY, int destinoX, int destinoY){
 		
-		int tipo = this.getUnit(destinoX, origemY);
+		this.units[origemX][origemY] = TipoTerreno.ROBOT.getType(); 
+		
+		int tipo = this.getUnit(origemX, origemY);
 		Mover m = new Mover(tipo);
 		
-		return getPath(m,destinoY, destinoY, origemX, origemY );
+		return getPath(m, origemX, origemY,destinoX, destinoY );
 		
 	}
 	
 	private Caminho getPath(Mover mover,int origemX, int origemY, int destinoX, int destinoY){
 
 		RastreadorCaminho finder = new RastreadorCaminho(this, 500, true);
-		Caminho caminho = finder.findPath(mover, destinoX, destinoY, origemX, origemY,true);
+		Caminho caminho = finder.findPath(mover, origemX, origemY, destinoX, destinoY,true);
 		
 		return caminho;
 	}
@@ -54,6 +57,8 @@ public class GameMap implements Serializable {
 
 	private void loadMap() {
 	
+		this.terrain = new MapParse().getMap();
+		
 //		try {
 //			this.terrain = this.autobotsRPC_cln.getMap();
 //		} catch (rpc_err e) {
@@ -95,7 +100,7 @@ public class GameMap implements Serializable {
 			return true;
 		}
 		
-		int unit = ((Mover) mover).getType();
+		int unit = mover.getType();
 		
 		if (unit == TipoTerreno.ROBOT.getType()) {
 			return getTerrain(x,y) != TipoTerreno.GRASS.getType();

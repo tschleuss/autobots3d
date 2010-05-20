@@ -2,6 +2,11 @@ package org.furb.cg;
 
 import java.awt.EventQueue;
 
+import org.furb.cg.engine.GameMap;
+import org.furb.cg.engine.structs.Caminho;
+import org.furb.cg.engine.structs.Passo;
+import org.furb.cg.loader.MapParse;
+
 public class Main {
 	
 	public static void main(String[] args)
@@ -16,6 +21,14 @@ public class Main {
         		frame.setLocationRelativeTo(null);
         		frame.setVisible(true);
         		frame.getCanvas().requestFocus();
+        		
+        		GameMap gMap = new GameMap();
+        		Caminho c = gMap.getFasterPath(5, 0, 26, 10);
+        		
+        		for(Passo p : c.getSteps())
+        		{
+					System.out.println(p.getX() + "/" + p.getY());
+				}        		
             }
         });
 	}

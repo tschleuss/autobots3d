@@ -37,6 +37,16 @@ public class MapParse {
     	return map;
     }
 	
+    public void mapToString(){
+    	for(int i=0; i< mc.getLinhas(); i++){
+        	for(int j=0; j< mc.getColunas(); j++){
+        		System.out.print(this.map[i][j]);
+        	}
+        	System.out.print("\n");
+    	}
+
+    }
+    
     /**
      * Criar o objeto map config
      * com as propriedades do mapa
@@ -87,7 +97,7 @@ public class MapParse {
 				
 				for( int x = 0; x < currentLine.length(); x++ )
 				{
-					map[y][x] = Integer.valueOf(currentLine.charAt(x));
+					map[y][x] = Integer.valueOf(String.valueOf(currentLine.charAt(x)));
 				}
 			}
 			
