@@ -22,14 +22,19 @@ public class Cube extends Base {
 		gl.glColor3f(0.0f, 0.0f, 0.0f);
 		
 		gl.glPushMatrix();
+		
 			gl.glTranslatef(xT, yT, zT);
 			gl.glScalef(xS,yS,zS);
 			
-			if(this.solid){
+			if(this.solid)
+			{
 				glut.glutSolidCube(this.size);
-			}else{
+			}
+			else
+			{
 				glut.glutWireCube(this.size);
 			}
+			
 		gl.glPopMatrix();
 	}
 

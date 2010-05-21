@@ -9,6 +9,7 @@ import javax.media.opengl.GLAutoDrawable;
 import javax.media.opengl.GLEventListener;
 import javax.media.opengl.glu.GLU;
 
+import org.furb.cg.engine.GameMap;
 import org.furb.cg.render.Axis;
 import org.furb.cg.render.Cube;
 
@@ -17,6 +18,7 @@ import com.sun.opengl.util.GLUT;
 
 public class Canvas implements GLEventListener, KeyListener  {
 	
+	private GameMap gameMap = null;
 	private GL gl;
 	private GLU glu;
 	private GLUT glut;
@@ -25,18 +27,19 @@ public class Canvas implements GLEventListener, KeyListener  {
 	private double xCenter, yCenter, zCenter;
 	private final double xUp = 0.0f, yUp = 1.0f, zUp = 0.0f;
 	private float aspectRatio;
-	//private static final int SIZE = 2;
 	
 	private Cube cubeRender = null;
 	private Axis axisRender = null;
 	
-	public void init(GLAutoDrawable drawable) {
+	public void init(GLAutoDrawable drawable) 
+	{
 		this.initEngine(drawable);
 		this.initConfig();
 		this.initRenders();	
 	}
 	
-	private void initEngine(GLAutoDrawable drawable){
+	private void initEngine(GLAutoDrawable drawable)
+	{
 		glDrawable = drawable;
 		gl = drawable.getGL();
 		glu = new GLU();
@@ -44,7 +47,8 @@ public class Canvas implements GLEventListener, KeyListener  {
 		glDrawable.setGL(new DebugGL(gl));
 	}
 	
-	private void initConfig(){
+	private void initConfig()
+	{
 		gl.glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		xEye = 10.0f;
 		yEye = 10.0f;
@@ -59,56 +63,67 @@ public class Canvas implements GLEventListener, KeyListener  {
 		this.axisRender = new Axis(this.gl, this.glut);
 	}
 
-	public void display(GLAutoDrawable drawable) {
-		// gl = drawable.getGL();
+	public void display(GLAutoDrawable drawable) 
+	{
 		gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
 
 		this.axisRender.draw();
 		
-		float zT = 1;
-		
-		for(int i = 0; i <=4; i ++){
-			this.cubeRender.setZT(zT);
-			this.cubeRender.setSolid(false);
-			this.cubeRender.draw();
-			zT ++;
+		for (int y = 0; y < gameMap.getTerrain().length; y++ ) 
+		{
+			final int[] row = gameMap.getTerrain()[y];
+			
+			for( int x = 0; x < row.length; x++ )
+			{
+				this.cubeRender.setZT(y);
+				this.cubeRender.setXT(x);
+				this.cubeRender.setYT(0);
+				this.cubeRender.setSolid(false);
+				this.cubeRender.draw();
+			}
 		}
 		
 		gl.glFlush();
 	}
 
-	public void keyPressed(KeyEvent e) {
-		switch (e.getKeyCode()) {
-
-		case KeyEvent.VK_ESCAPE:
-			System.exit(1);
+	public void keyPressed(KeyEvent e) 
+	{
+		switch (e.getKeyCode()) 
+		{
+			case KeyEvent.VK_ESCAPE: {
+				System.exit(1);
+			}
 		}
 	}
 
 
-	public void reshape(GLAutoDrawable drawable, int x, int y, int width,
-			int height) {
-		// gl = drawable.getGL();
+	public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) 
+	{
 		aspectRatio = (float) height / (float) width;
 		gl.glMatrixMode(GL.GL_PROJECTION);
 		gl.glLoadIdentity();
 		gl.glFrustum(-1.0f, 1.0f, -aspectRatio, aspectRatio, 5.0f, 60.0f);
 		gl.glMatrixMode(GL.GL_MODELVIEW);
 		gl.glLoadIdentity();
-		glu.gluLookAt(xEye, yEye, zEye, xCenter, yCenter, zCenter, xUp, yUp,
-				zUp);
+		glu.gluLookAt(xEye, yEye, zEye, xCenter, yCenter, zCenter, xUp, yUp,zUp);
 	}
 	
 	public void displayChanged(GLAutoDrawable arg0, boolean arg1, boolean arg2) {
 	}
 
 	public void keyReleased(KeyEvent arg0) {
-		// TODO Auto-generated method stub
-
+		return;
 	}
 
 	public void keyTyped(KeyEvent arg0) {
-
+		return;
 	}
 
+	public GameMap getGameMap() {
+		return gameMap;
+	}
+
+	public void setGameMap(GameMap gameMap) {
+		this.gameMap = gameMap;
+	}
 }
