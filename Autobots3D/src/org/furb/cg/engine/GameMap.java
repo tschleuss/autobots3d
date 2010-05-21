@@ -55,15 +55,9 @@ public class GameMap implements Serializable {
 //		}
 	}
 
-	private void loadMap() {
-	
+	private void loadMap() 
+	{
 		this.terrain = new MapParse().getMap();
-		
-//		try {
-//			this.terrain = this.autobotsRPC_cln.getMap();
-//		} catch (rpc_err e) {
-//			e.printStackTrace();
-//		}
 	}
 
 	public void clearVisited() 
@@ -82,8 +76,7 @@ public class GameMap implements Serializable {
 	}
 
 	public int getTerrain(int x, int y) {
-		//inverte x e y
-		return terrain[y][x];
+		return terrain[x][y];
 	}
 
 	public int getUnit(int x, int y) {

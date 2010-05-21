@@ -97,7 +97,7 @@ public class MapParse {
 				
 				for( int x = 0; x < currentLine.length(); x++ )
 				{
-					map[y][x] = Integer.valueOf(String.valueOf(currentLine.charAt(x)));
+					map[x][y] = Integer.valueOf(String.valueOf(currentLine.charAt(x)));
 				}
 			}
 			
