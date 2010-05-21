@@ -17,7 +17,8 @@ public abstract class Base {
 	protected float yT;
 	protected float zT;
 	
-	public Base(GL gl, GLUT glut){
+	public Base(GL gl, GLUT glut)
+	{
 		this.gl = gl;
 		this.glut = glut;
 		this.xS = 1;

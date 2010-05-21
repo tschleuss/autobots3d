@@ -12,8 +12,12 @@ import javax.swing.JPanel;
 import javax.swing.WindowConstants;
 import javax.swing.border.BevelBorder;
 
+import org.furb.cg.engine.GameMap;
+
 
 public class MapFrame extends JFrame {
+
+	private static final long serialVersionUID = -7999646168812247942L;
 	
 	private GLCanvas canvas	= null;
 	private Canvas jogl		= null;
@@ -38,7 +42,6 @@ public class MapFrame extends JFrame {
 	
 	private void initJOGL() 
 	{
-		
 		pnCanvas = new JPanel();
 		
 		pnCanvas.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
@@ -53,6 +56,7 @@ public class MapFrame extends JFrame {
 		c.setAlphaBits(8);
 		
 		jogl = new Canvas();
+		jogl.setGameMap( new GameMap() );
 		this.canvas = new GLCanvas(c);
 		pnCanvas.add(this.canvas, BorderLayout.CENTER);
 		this.getContentPane().add(canvas,BorderLayout.CENTER);
