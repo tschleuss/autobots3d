@@ -1,7 +1,12 @@
 package org.furb.cg;
 
+import java.awt.Dimension;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 
 import javax.media.opengl.DebugGL;
 import javax.media.opengl.GL;
@@ -16,7 +21,7 @@ import org.furb.cg.render.Cube;
 
 import com.sun.opengl.util.GLUT;
 
-public class Canvas implements GLEventListener, KeyListener  {
+public class Canvas implements GLEventListener, KeyListener, MouseMotionListener, MouseListener  {
 	
 	private GameMap gameMap = null;
 	private GL gl;
@@ -27,6 +32,14 @@ public class Canvas implements GLEventListener, KeyListener  {
 	private double xCenter, yCenter, zCenter;
 	private final double xUp = 0.0f, yUp = 1.0f, zUp = 0.0f;
 	private float aspectRatio;
+	
+	private float view_rotx = 20.0f;
+	private float view_roty = 30.0f;
+	private float view_rotz = 0.0f;
+	private float angle = 0.0f;
+	private int prevMouseX;
+	private int prevMouseY;
+	private boolean mouseRButtonDown = false;
 	
 	private Cube cubeRender = null;
 	private Axis axisRender = null;
@@ -65,10 +78,18 @@ public class Canvas implements GLEventListener, KeyListener  {
 
 	public void display(GLAutoDrawable drawable) 
 	{
+		angle += 2.0f;
+		
 		gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
 
 		this.axisRender.draw();
-		
+
+	    gl.glPushMatrix();
+	    gl.glRotatef(view_rotx, 1.0f, 0.0f, 0.0f);
+	    gl.glRotatef(view_roty, 0.0f, 1.0f, 0.0f);
+	    gl.glRotatef(view_rotz, 0.0f, 0.0f, 1.0f);
+	    gl.glPushMatrix();
+	    
 		for (int y = 0; y < gameMap.getTerrain().length; y++ ) 
 		{
 			final int[] row = gameMap.getTerrain()[y];
@@ -83,6 +104,9 @@ public class Canvas implements GLEventListener, KeyListener  {
 			}
 		}
 		
+		gl.glPopMatrix();
+		gl.glPopMatrix();
+		
 		gl.glFlush();
 	}
 
@@ -91,11 +115,10 @@ public class Canvas implements GLEventListener, KeyListener  {
 		switch (e.getKeyCode()) 
 		{
 			case KeyEvent.VK_ESCAPE: {
-				System.exit(1);
+				System.exit(0);
 			}
 		}
 	}
-
 
 	public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) 
 	{
@@ -119,6 +142,57 @@ public class Canvas implements GLEventListener, KeyListener  {
 		return;
 	}
 
+	public void mouseDragged(MouseEvent e) 
+	{
+		int x = e.getX();
+	    int y = e.getY();
+	    Dimension size = e.getComponent().getSize();
+
+	    float thetaY = 360.0f * ( (float)(x-prevMouseX)/(float)size.width);
+	    float thetaX = 360.0f * ( (float)(prevMouseY-y)/(float)size.height);
+	    
+	    prevMouseX = x;
+	    prevMouseY = y;
+
+	    view_rotx += thetaX;
+	    view_roty += thetaY;
+	}
+
+	public void mouseMoved(MouseEvent e) {
+		return;
+	}
+
+	public void mouseClicked(MouseEvent e) {
+		return;
+	}
+
+	public void mouseEntered(MouseEvent e) {
+		return;
+	}
+
+	public void mouseExited(MouseEvent e) {
+		return;
+	}
+
+	public void mousePressed(MouseEvent e) 
+	{
+		prevMouseX = e.getX();
+	    prevMouseY = e.getY();
+	    
+	    if ( ( e.getModifiers() & MouseEvent.BUTTON3_MASK ) != 0 ) 
+	    {
+	      mouseRButtonDown = true;
+	    }
+	}
+
+	public void mouseReleased(MouseEvent e) 
+	{
+	    if ( (e.getModifiers() & MouseEvent.BUTTON3_MASK) != 0 ) 
+	    {
+	        mouseRButtonDown = false;
+	    }
+	}
+	
 	public GameMap getGameMap() {
 		return gameMap;
 	}
