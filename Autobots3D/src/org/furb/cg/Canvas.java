@@ -1,7 +1,6 @@
 package org.furb.cg;
 
 import java.awt.Dimension;
-import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
@@ -18,7 +17,6 @@ import org.furb.cg.engine.GameMap;
 import org.furb.cg.render.Axis;
 import org.furb.cg.render.Cube;
 
-
 import com.sun.opengl.util.GLUT;
 
 public class Canvas implements GLEventListener, KeyListener, MouseMotionListener, MouseListener  {
@@ -33,13 +31,12 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	private final double xUp = 0.0f, yUp = 1.0f, zUp = 0.0f;
 	private float aspectRatio;
 	
-	private float view_rotx = 20.0f;
-	private float view_roty = 30.0f;
+	private float view_rotx = 0.0f;
+	private float view_roty = 0.0f;
 	private float view_rotz = 0.0f;
 	private float angle = 0.0f;
 	private int prevMouseX;
 	private int prevMouseY;
-	private boolean mouseRButtonDown = false;
 	
 	private Cube cubeRender = null;
 	private Axis axisRender = null;
@@ -178,19 +175,11 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	{
 		prevMouseX = e.getX();
 	    prevMouseY = e.getY();
-	    
-	    if ( ( e.getModifiers() & MouseEvent.BUTTON3_MASK ) != 0 ) 
-	    {
-	      mouseRButtonDown = true;
-	    }
 	}
 
 	public void mouseReleased(MouseEvent e) 
 	{
-	    if ( (e.getModifiers() & MouseEvent.BUTTON3_MASK) != 0 ) 
-	    {
-	        mouseRButtonDown = false;
-	    }
+		return;
 	}
 	
 	public GameMap getGameMap() {
