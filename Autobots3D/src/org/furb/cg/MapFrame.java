@@ -3,6 +3,8 @@ package org.furb.cg;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import javax.media.opengl.GLCanvas;
 import javax.media.opengl.GLCapabilities;
@@ -14,14 +16,17 @@ import javax.swing.border.BevelBorder;
 
 import org.furb.cg.engine.GameMap;
 
+import com.sun.opengl.util.Animator;
+
 
 public class MapFrame extends JFrame {
 
 	private static final long serialVersionUID = -7999646168812247942L;
 	
-	private GLCanvas canvas	= null;
-	private Canvas jogl		= null;
-    private JPanel pnCanvas	= null;
+	private GLCanvas canvas		= null;
+	private Canvas jogl			= null;
+	private Animator animator	= null;
+    private JPanel pnCanvas		= null;
 
     /**
      * Construtor da classe
@@ -32,10 +37,24 @@ public class MapFrame extends JFrame {
 		final int screenHeight = 500;
 		
 		super.setMinimumSize(new Dimension(screenWidth, screenHeight));
-		
-		super.setTitle("[Autobots3D] - FURB 2010 - Computação Gráfica");
+		super.setTitle("[Autobots3D] - FURB 2010 - Computacao Grafica");
 		super.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		super.getContentPane().setLayout(new BorderLayout());
+		
+	    this.addWindowListener(new WindowAdapter() 
+	    {
+	        public void windowClosing(WindowEvent e) 
+	        {
+        		new Thread(new Runnable() 
+        		{
+        			public void run() 
+        			{
+        				animator.stop();
+        				System.exit(0);
+        			}
+        		}).start();
+	        }
+	    });
 		
 		this.initJOGL();
 	}
@@ -57,17 +76,27 @@ public class MapFrame extends JFrame {
 		
 		jogl = new Canvas();
 		jogl.setGameMap( new GameMap() );
-		this.canvas = new GLCanvas(c);
+		canvas = new GLCanvas(c);
+		animator = new Animator(canvas);
 		pnCanvas.add(this.canvas, BorderLayout.CENTER);
 		this.getContentPane().add(canvas,BorderLayout.CENTER);
 		canvas.addGLEventListener(jogl);        
 		canvas.addKeyListener(jogl);
-		canvas.requestFocus();		
+		canvas.addMouseListener(jogl);
+		canvas.addMouseMotionListener(jogl);
+		canvas.requestFocus();
+		animator.start();
 	}
 
 	public GLCanvas getCanvas() {
 		return canvas;
 	}
-	
-	
+
+	public Canvas getJogl() {
+		return jogl;
+	}
+
+	public Animator getAnimator() {
+		return animator;
+	}
 }
