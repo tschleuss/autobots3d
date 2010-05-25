@@ -18,29 +18,54 @@ import org.furb.cg.render.Axis;
 import org.furb.cg.render.Cube;
 import org.furb.cg.util.TipoTerreno;
 
+import com.sun.opengl.util.Animator;
 import com.sun.opengl.util.GLUT;
 
 public class Canvas implements GLEventListener, KeyListener, MouseMotionListener, MouseListener  {
 	
-	private GameMap gameMap = null;
-	private GL gl;
-	private GLU glu;
-	private GLUT glut;
-	private GLAutoDrawable glDrawable;
-	private double xEye, yEye, zEye;
-	private double xCenter, yCenter, zCenter;
-	private final double xUp = 0.0f, yUp = 1.0f, zUp = 0.0f;
+	private GameMap		gameMap		= null;
+	private Animator	animator	= null;
+	
+	private GLAutoDrawable	glDrawable	= null;
+	private GLUT			glut		= null;
+	private GLU				glu			= null;
+	private GL				gl			= null;
+
+	private final double xUp = 0.0f;
+	private final double yUp = 1.0f;
+	private final double zUp = 0.0f;
+	
+	private final static int FLOOR_LEN = 100;
+	private final static double LOOK_AT_DIST = 100.0;
+	private final static double Z_POS = 9.0;
+	private final static double SPEED = 2.5;
+	private final static double ANGLE_INCR = 5.0;
+	private final static double HEIGHT_STEP = 1.0;
+	
+	private double xCamPos, yCamPos, zCamPos;
+	private double xLookAt, yLookAt, zLookAt;
+
+	private double xStep, zStep;
+	private double viewAngle;
 	private float aspectRatio;
 	
-	private float view_rotx = 0.0f;
-	private float view_roty = 0.0f;
-	private float view_rotz = 0.0f;
-	private float angle = 0.0f;
-	private int prevMouseX;
-	private int prevMouseY;
-	
+	private float view_rotx, view_roty, view_rotz = 0.0f;
+	private int prevMouseX, prevMouseY;
+
 	private Cube cubeRender = null;
-	private Axis axisRender = null;
+	private Axis axisRender = null;    
+	
+	
+	private float[][] verts = {
+			{-1.0f,-1.0f, 1.0f}, // vertex 0
+			{-1.0f, 1.0f, 1.0f}, // 1
+			{ 1.0f, 1.0f, 1.0f}, // 2
+			{ 1.0f,-1.0f, 1.0f}, // 3
+			{-1.0f,-1.0f,-1.0f}, // 4
+			{-1.0f, 1.0f,-1.0f}, // 5
+			{ 1.0f, 1.0f,-1.0f}, // 6
+			{ 1.0f,-1.0f,-1.0f}, // 7
+			};
 	
 	public void init(GLAutoDrawable drawable) 
 	{
@@ -61,25 +86,41 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	private void initConfig()
 	{
 		gl.glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-		xEye = 10.0f;
-		yEye = 10.0f;
-		zEye = 50.0f;
-		xCenter = 0.0f;
-		yCenter = 0.0f;
-		zCenter = 0.0f;
+		this.initViewerPos();
+//		xCamPos = 10.0f;
+//		yCamPos = 10.0f;
+//		zCamPos = 20.0f;
+//		xLookAt = 0.0f;
+//		yLookAt = 0.0f;
+//		zLookAt = 0.0f;
 	}
 	
-	private void initRenders(){
-		this.cubeRender = new Cube(this.gl, this.glut);
-		this.axisRender = new Axis(this.gl, this.glut);
+	private void initRenders()
+	{
+		this.cubeRender = new Cube(gl, glut);
+		this.axisRender = new Axis(gl, glut);
+	}
+	
+	private void initViewerPos()
+	{
+		xCamPos = 0;
+		yCamPos = 1;
+		zCamPos = Z_POS;
+		
+		viewAngle = -90.0;
+		xStep = Math.cos( Math.toRadians(viewAngle) );
+		zStep = Math.sin( Math.toRadians(viewAngle) );
+		
+		xLookAt = xCamPos + ( LOOK_AT_DIST * xStep );
+		yLookAt = 0;
+		zLookAt = zCamPos + ( LOOK_AT_DIST * zStep );
 	}
 
 	public void display(GLAutoDrawable drawable) 
 	{
-		angle += 2.0f;
-		
+		this.refreshRender();
 		gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
-
+		
 		this.axisRender.draw();
 
 	    gl.glPushMatrix();
@@ -100,17 +141,47 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 				this.cubeRender.setZT(y);
 				this.cubeRender.setXT(x);
 				this.cubeRender.setYT(0);
-				this.cubeRender.setSolid(true);
+				this.cubeRender.setSolid(false);
 				this.cubeRender.draw();
 			}
 		}
 		
-		gl.glPopMatrix();
-		gl.glPopMatrix();
+		this.drawColourCube(this.gl);
 		
+		gl.glPopMatrix();
+		gl.glPopMatrix();
 		gl.glFlush();
 	}
 
+	
+	private void drawColourCube(GL gl)
+	// six-sided cube, with a different color on each face
+	{
+	gl.glColor3f(1.0f, 0.0f, 0.0f); // red
+	drawPolygon(gl, 0, 3, 2, 1); // front face
+	gl.glColor3f(0.0f, 1.0f, 0.0f); // green
+	drawPolygon(gl, 2, 3, 7, 6); // right
+	gl.glColor3f(0.0f, 0.0f, 1.0f); // blue
+	drawPolygon(gl, 3, 0, 4, 7); // bottom
+	gl.glColor3f(1.0f, 1.0f, 0.0f); // yellow
+	drawPolygon(gl, 1, 2, 6, 5); // top
+	gl.glColor3f(0.0f, 1.0f, 1.0f); // light blue
+	drawPolygon(gl, 4, 5, 6, 7); // back
+	gl.glColor3f(1.0f, 0.0f, 1.0f); // purple
+	drawPolygon(gl, 5, 4, 0, 1); // left
+	} // end of drawColourCube()
+	private void drawPolygon(GL gl, int vIdx0, int vIdx1,
+	int vIdx2, int vIdx3)
+	// the polygon vertices come from the verts[] array
+	{
+	gl.glBegin(GL.GL_POLYGON);
+	gl.glVertex3f(verts[vIdx0][0],verts[vIdx0][1], verts[vIdx0][2] );
+	gl.glVertex3f(verts[vIdx1][0],verts[vIdx1][1], verts[vIdx1][2] );
+	gl.glVertex3f(verts[vIdx2][0],verts[vIdx2][1], verts[vIdx2][2] );
+	gl.glVertex3f(verts[vIdx3][0],verts[vIdx3][1], verts[vIdx3][2] );
+	gl.glEnd();
+	} // end of drawPolygon()
+	
 	private void paintCell(int x, int y)
 	{
 		float red = 0.0f;
@@ -143,23 +214,117 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	
 	public void keyPressed(KeyEvent e) 
 	{
-		switch (e.getKeyCode()) 
+		final int keyCode = e.getKeyCode();
+		
+		switch ( keyCode ) 
 		{
-			case KeyEvent.VK_ESCAPE: {
+			case KeyEvent.VK_ESCAPE: 
+			{
 				System.exit(0);
+				break;
+			}
+			
+			case KeyEvent.VK_LEFT: 
+			{
+				if( e.isControlDown()) {
+					xCamPos += zStep * SPEED;
+					zCamPos -= xStep * SPEED;
+				}
+				else {
+					viewAngle -= ANGLE_INCR;
+					xStep = Math.cos( Math.toRadians(viewAngle) );
+					zStep = Math.sin( Math.toRadians(viewAngle) );
+				}
+				
+				break;
+			}
+			
+			case KeyEvent.VK_RIGHT: 
+			{
+				if( e.isControlDown()) {
+					xCamPos -= zStep * SPEED;
+					zCamPos += xStep * SPEED;
+				}
+				else {
+					viewAngle += ANGLE_INCR;
+					xStep = Math.cos( Math.toRadians(viewAngle) );
+					zStep = Math.sin( Math.toRadians(viewAngle) );
+				}
+				
+				break;
+			}
+			
+			case KeyEvent.VK_UP: 
+			{
+				if( e.isControlDown() ) {
+					if( (yCamPos + HEIGHT_STEP) < FLOOR_LEN/2 ) {
+						yCamPos += HEIGHT_STEP;
+						yLookAt += HEIGHT_STEP;
+					}
+ 				}
+				else {
+					xCamPos += xStep * SPEED;
+					zCamPos += zStep * SPEED;
+				}
+				
+				break;
+			}
+			
+			case KeyEvent.VK_DOWN: 
+			{
+				if( e.isControlDown() ) {
+					if( (yCamPos - HEIGHT_STEP) > 0 ) {
+						yCamPos -= HEIGHT_STEP;
+						yLookAt -= HEIGHT_STEP;
+					}
+ 				}
+				else {
+					xCamPos -= xStep * SPEED;
+					zCamPos -= zStep * SPEED;
+				}
+				
+				break;
 			}
 		}
+		
+		if( xCamPos < -FLOOR_LEN/2 ) {
+			xCamPos = -FLOOR_LEN/2;
+		}
+		else if( xCamPos > FLOOR_LEN/2 ) {
+			xCamPos = FLOOR_LEN/2;
+		}
+		
+		if( zCamPos < -FLOOR_LEN/2 ) {
+			zCamPos = -FLOOR_LEN/2;
+		}
+		else if( zCamPos > FLOOR_LEN/2 ) {
+			zCamPos = FLOOR_LEN/2;
+		}
+		
+		xLookAt = xCamPos + (xStep * LOOK_AT_DIST);
+		zLookAt = zCamPos + (zStep * LOOK_AT_DIST);
 	}
 
 	public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) 
 	{
-		aspectRatio = (float) height / (float) width;
 		gl.glMatrixMode(GL.GL_PROJECTION);
 		gl.glLoadIdentity();
+		aspectRatio = (float) height / (float) width;
 		gl.glFrustum(-1.0f, 1.0f, -aspectRatio, aspectRatio, 5.0f, 60.0f);
+		
+		this.refreshRender();
+	}
+
+	/**
+	 * Atualiza a tela.
+	 * @param width
+	 * @param height
+	 */
+	private void refreshRender() 
+	{
 		gl.glMatrixMode(GL.GL_MODELVIEW);
 		gl.glLoadIdentity();
-		glu.gluLookAt(xEye, yEye, zEye, xCenter, yCenter, zCenter, xUp, yUp,zUp);
+		glu.gluLookAt(xCamPos, yCamPos, zCamPos, xLookAt, yLookAt, zLookAt, xUp, yUp,zUp);
 	}
 	
 	public void displayChanged(GLAutoDrawable arg0, boolean arg1, boolean arg2) {
@@ -185,8 +350,12 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	    prevMouseX = x;
 	    prevMouseY = y;
 
-	    view_rotx += thetaX;
-	    view_roty += thetaY;
+	    //view_rotx += thetaX;
+	    //view_roty += thetaY;
+	    
+	    xCamPos += thetaX;
+	    yCamPos += thetaY;
+	    
 	}
 
 	public void mouseMoved(MouseEvent e) {
@@ -222,5 +391,13 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 
 	public void setGameMap(GameMap gameMap) {
 		this.gameMap = gameMap;
+	}
+
+	public Animator getAnimator() {
+		return animator;
+	}
+
+	public void setAnimator(Animator animator) {
+		this.animator = animator;
 	}
 }
