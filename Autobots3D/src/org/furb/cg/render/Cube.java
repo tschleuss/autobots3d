@@ -19,7 +19,7 @@ public class Cube extends Base {
 	@Override
 	public void draw() 
 	{
-		gl.glColor3f(0.0f, 0.0f, 0.0f);
+		gl.glColor3f(this.red, this.green, this.blue);
 		
 		gl.glPushMatrix();
 		

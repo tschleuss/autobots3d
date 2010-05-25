@@ -33,8 +33,8 @@ public class MapFrame extends JFrame {
      */
 	public MapFrame() 
 	{
-		final int screenWidth = 500;
-		final int screenHeight = 500;
+		final int screenWidth = 700;
+		final int screenHeight = 600;
 		
 		super.setMinimumSize(new Dimension(screenWidth, screenHeight));
 		super.setTitle("[Autobots3D] - FURB 2010 - Computacao Grafica");
