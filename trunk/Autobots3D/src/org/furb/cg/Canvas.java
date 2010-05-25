@@ -16,6 +16,7 @@ import javax.media.opengl.glu.GLU;
 import org.furb.cg.engine.GameMap;
 import org.furb.cg.render.Axis;
 import org.furb.cg.render.Cube;
+import org.furb.cg.util.TipoTerreno;
 
 import com.sun.opengl.util.GLUT;
 
@@ -62,7 +63,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 		gl.glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		xEye = 10.0f;
 		yEye = 10.0f;
-		zEye = 20.0f;
+		zEye = 50.0f;
 		xCenter = 0.0f;
 		yCenter = 0.0f;
 		zCenter = 0.0f;
@@ -86,17 +87,20 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	    gl.glRotatef(view_roty, 0.0f, 1.0f, 0.0f);
 	    gl.glRotatef(view_rotz, 0.0f, 0.0f, 1.0f);
 	    gl.glPushMatrix();
-	    
+
 		for (int y = 0; y < gameMap.getTerrain().length; y++ ) 
 		{
 			final int[] row = gameMap.getTerrain()[y];
 			
 			for( int x = 0; x < row.length; x++ )
 			{
+				
+				this.paintCell(x, y);
+				
 				this.cubeRender.setZT(y);
 				this.cubeRender.setXT(x);
 				this.cubeRender.setYT(0);
-				this.cubeRender.setSolid(false);
+				this.cubeRender.setSolid(true);
 				this.cubeRender.draw();
 			}
 		}
@@ -107,6 +111,36 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 		gl.glFlush();
 	}
 
+	private void paintCell(int x, int y)
+	{
+		float red = 0.0f;
+		float green = 0.0f;
+		float blue = 0.0f;
+		
+		//ROBO
+		if(gameMap.getUnit(x,y) == TipoTerreno.ROBOT.getType()){
+			red = 1;
+		}
+		//GRAMA
+		else if(gameMap.getTerrain(x,y) == TipoTerreno.GRASS.getType()){
+			green = 1;
+		}
+		//AGUA
+		else if(gameMap.getTerrain(x,y) == TipoTerreno.WATER.getType()){
+			blue = 1;
+		}
+		//ARVORE
+		else if(gameMap.getTerrain(x,y) == TipoTerreno.WATER.getType()){
+			red = 1; 
+			green = 1; blue = 1;
+		}
+		
+		this.cubeRender.setRed(red);
+		this.cubeRender.setGreen(green);
+		this.cubeRender.setBlue(blue);
+		
+	}
+	
 	public void keyPressed(KeyEvent e) 
 	{
 		switch (e.getKeyCode()) 

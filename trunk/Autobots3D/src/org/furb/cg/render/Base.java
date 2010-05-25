@@ -17,6 +17,10 @@ public abstract class Base {
 	protected float yT;
 	protected float zT;
 	
+	protected float red;
+	protected float green;
+	protected float blue;
+	
 	public Base(GL gl, GLUT glut)
 	{
 		this.gl = gl;
@@ -28,6 +32,10 @@ public abstract class Base {
 		this.setXT(1);
 		this.setYT(1);
 		this.setZT(1);
+		
+		this.setRed(0);
+		this.setGreen(0);
+		this.setBlue(0);
 	}
 	
 	public abstract void draw();
@@ -78,5 +86,17 @@ public abstract class Base {
 
 	public float getZT() {
 		return zT;
+	}
+	
+	public void setRed(float red){
+		this.red = red;
+	}
+
+	public void setGreen(float green){
+		this.green = green;
+	}
+
+	public void setBlue(float blue){
+		this.blue = blue;
 	}
 }
