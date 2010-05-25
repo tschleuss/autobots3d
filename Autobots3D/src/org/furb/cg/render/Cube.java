@@ -36,6 +36,7 @@ public class Cube extends Base {
 			}
 			
 		gl.glPopMatrix();
+		
 	}
 
 	public void setSize(float size) {
