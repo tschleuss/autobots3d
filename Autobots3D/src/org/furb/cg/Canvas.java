@@ -79,7 +79,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	
 	private void initConfig()
 	{
-		gl.glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+		gl.glClearColor(0, 0, 0, 1.0f);
 		this.initViewerPos();
 //		xCamPos = 10.0f;
 //		yCamPos = 10.0f;
@@ -106,7 +106,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 			
 			for( int x = 0; x < row.length; x++ )
 			{
-				cube3D = new Cube3D(this.gl, x,0,y);
+				cube3D = new Cube3D(this.gl, x * 2,0,y);
 				cube3D.setMapXY(x, y);
 				this.mapa3D.add(cube3D);
 			}
