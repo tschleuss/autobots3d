@@ -96,49 +96,13 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 			
 			for( int x = 0; x < row.length; x++ )
 			{
-<<<<<<< .mine
 				cube3D = new Cube3D(this.gl, x * 3 , 0 , y * 3 );
-=======
 				cube3D = new Cube3D(this.gl, x * 3,0,y * 3);
->>>>>>> .r20
 				cube3D.setMapXY(x, y);
 				cube3D.setTipoTerreno( TipoTerreno.valueOf( row[x] ) );
 				this.mapa3D.add(cube3D);
-				this.paintCell(cube3D);
 			}
 		}
-<<<<<<< .mine
-=======
-	}
-
-	private void paintCell(Cube3D casa)
-	{
-		float red = 0.0f;
-		float green = 0.0f;
-		float blue = 0.0f;
-		
-		//ROBO
-		if(gameMap.getUnit(casa.getMapX(),casa.getMapY()) == TipoTerreno.ROBOT.getType()){
-			red = 1;
-		}
-		//GRAMA
-		else if(gameMap.getTerrain(casa.getMapX(),casa.getMapY()) == TipoTerreno.GRASS.getType()){
-			green = 1;
-		}
-		//AGUA
-		else if(gameMap.getTerrain(casa.getMapX(),casa.getMapY()) == TipoTerreno.WATER.getType()){
-			blue = 1;
-		}
-		//ARVORE
-		else if(gameMap.getTerrain(casa.getMapX(),casa.getMapY()) == TipoTerreno.TREES.getType()){
-			red = 1; 
-			green = 1; 
-			blue = 1;
-		}
-		
-		casa.setColor(red, green, blue);
-		
->>>>>>> .r20
 	}
 	
 	private void initViewerPos()
@@ -181,10 +145,6 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 		gl.glFlush();
 	}
 
-<<<<<<< .mine
-=======
-	
->>>>>>> .r20
 	public void keyPressed(KeyEvent e) 
 	{
 		final int keyCode = e.getKeyCode();
