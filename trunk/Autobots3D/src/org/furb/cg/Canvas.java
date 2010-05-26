@@ -16,7 +16,6 @@ import javax.media.opengl.glu.GLU;
 
 import org.furb.cg.engine.GameMap;
 import org.furb.cg.render.Axis;
-import org.furb.cg.render.Cube;
 import org.furb.cg.render.Cube3D;
 import org.furb.cg.util.TipoTerreno;
 
@@ -40,7 +39,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	private final static int FLOOR_LEN = 100;
 	private final static double LOOK_AT_DIST = 100.0;
 	private final static double Z_POS = 9.0;
-	private final static double SPEED = 2.5;
+	private final static double SPEED = 1.5;
 	private final static double ANGLE_INCR = 5.0;
 	private final static double HEIGHT_STEP = 1.0;
 	
@@ -53,8 +52,6 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	
 	private float view_rotx, view_roty, view_rotz = 0.0f;
 	private int prevMouseX, prevMouseY;
-
-	private Cube cubeRender = null;
 	private Axis axisRender = null;    
 	
 	private ArrayList<Cube3D> mapa3D;
@@ -85,13 +82,12 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	
 	private void initRenders()
 	{
-		this.cubeRender = new Cube(gl, glut);
 		this.axisRender = new Axis(gl, glut);
 		this.mapa3D =  new ArrayList<Cube3D>();
 	}
 	
-	private void initMap(){
-		
+	private void initMap()
+	{
 		Cube3D cube3D = null;
 		
 		for (int y = 0; y < gameMap.getTerrain().length; y++ ) 
@@ -100,12 +96,19 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 			
 			for( int x = 0; x < row.length; x++ )
 			{
+<<<<<<< .mine
+				cube3D = new Cube3D(this.gl, x * 3 , 0 , y * 3 );
+=======
 				cube3D = new Cube3D(this.gl, x * 3,0,y * 3);
+>>>>>>> .r20
 				cube3D.setMapXY(x, y);
+				cube3D.setTipoTerreno( TipoTerreno.valueOf( row[x] ) );
 				this.mapa3D.add(cube3D);
 				this.paintCell(cube3D);
 			}
 		}
+<<<<<<< .mine
+=======
 	}
 
 	private void paintCell(Cube3D casa)
@@ -135,10 +138,14 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 		
 		casa.setColor(red, green, blue);
 		
+>>>>>>> .r20
 	}
 	
 	private void initViewerPos()
 	{
+		view_rotx = 0.0f;
+		view_roty = 0.0f;
+		view_rotz = 0.0f;
 		xCamPos = 0;
 		yCamPos = 1;
 		zCamPos = Z_POS;
@@ -169,31 +176,15 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 			casa.draw();
 		}
 	    
-	    /*
-		for (int y = 0; y < gameMap.getTerrain().length; y++ ) 
-		{
-			final int[] row = gameMap.getTerrain()[y];
-			
-			for( int x = 0; x < row.length; x++ )
-			{
-				
-				this.paintCell(x, y);
-				
-				this.cubeRender.setZT(y);
-				this.cubeRender.setXT(x);
-				this.cubeRender.setYT(0);
-				this.cubeRender.setSolid(false);
-				this.cubeRender.draw();
-			}
-		}
-		*/
-	    
 		gl.glPopMatrix();
 		gl.glPopMatrix();
 		gl.glFlush();
 	}
 
+<<<<<<< .mine
+=======
 	
+>>>>>>> .r20
 	public void keyPressed(KeyEvent e) 
 	{
 		final int keyCode = e.getKeyCode();
@@ -265,6 +256,12 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 					zCamPos -= zStep * SPEED;
 				}
 				
+				break;
+			}
+			
+			case KeyEvent.VK_R:
+			{
+				this.initViewerPos();
 				break;
 			}
 		}
