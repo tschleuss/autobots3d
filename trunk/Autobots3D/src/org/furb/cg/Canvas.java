@@ -18,7 +18,6 @@ import org.furb.cg.engine.GameMap;
 import org.furb.cg.render.Axis;
 import org.furb.cg.render.Cube;
 import org.furb.cg.render.Cube3D;
-import org.furb.cg.util.TipoTerreno;
 
 import com.sun.opengl.util.Animator;
 import com.sun.opengl.util.GLUT;
@@ -81,12 +80,6 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	{
 		gl.glClearColor(0, 0, 0, 1.0f);
 		this.initViewerPos();
-//		xCamPos = 10.0f;
-//		yCamPos = 10.0f;
-//		zCamPos = 20.0f;
-//		xLookAt = 0.0f;
-//		yLookAt = 0.0f;
-//		zLookAt = 0.0f;
 	}
 	
 	private void initRenders()
@@ -340,12 +333,8 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	    prevMouseX = x;
 	    prevMouseY = y;
 
-	    //view_rotx += thetaX;
-	    //view_roty += thetaY;
-	    
-	    xCamPos += thetaX;
-	    yCamPos += thetaY;
-	    
+	    view_rotx += thetaX;
+	    view_roty += thetaY;
 	}
 
 	public void mouseMoved(MouseEvent e) {
