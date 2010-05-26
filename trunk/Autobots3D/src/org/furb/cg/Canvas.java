@@ -18,6 +18,7 @@ import org.furb.cg.engine.GameMap;
 import org.furb.cg.render.Axis;
 import org.furb.cg.render.Cube;
 import org.furb.cg.render.Cube3D;
+import org.furb.cg.util.TipoTerreno;
 
 import com.sun.opengl.util.Animator;
 import com.sun.opengl.util.GLUT;
@@ -99,11 +100,40 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 			
 			for( int x = 0; x < row.length; x++ )
 			{
-				cube3D = new Cube3D(this.gl, x * 2,0,y);
+				cube3D = new Cube3D(this.gl, x * 3,0,y * 3);
 				cube3D.setMapXY(x, y);
 				this.mapa3D.add(cube3D);
+				this.paintCell(cube3D);
 			}
 		}
+	}
+
+	private void paintCell(Cube3D casa)
+	{
+		float red = 0.0f;
+		float green = 0.0f;
+		float blue = 0.0f;
+		
+		//ROBO
+		if(gameMap.getUnit(casa.getMapX(),casa.getMapY()) == TipoTerreno.ROBOT.getType()){
+			red = 1;
+		}
+		//GRAMA
+		else if(gameMap.getTerrain(casa.getMapX(),casa.getMapY()) == TipoTerreno.GRASS.getType()){
+			green = 1;
+		}
+		//AGUA
+		else if(gameMap.getTerrain(casa.getMapX(),casa.getMapY()) == TipoTerreno.WATER.getType()){
+			blue = 1;
+		}
+		//ARVORE
+		else if(gameMap.getTerrain(casa.getMapX(),casa.getMapY()) == TipoTerreno.TREES.getType()){
+			red = 1; 
+			green = 1; 
+			blue = 1;
+		}
+		
+		casa.setColor(red, green, blue);
 		
 	}
 	
@@ -163,37 +193,6 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 		gl.glFlush();
 	}
 
-	/*
-	private void paintCell(int x, int y)
-	{
-		float red = 0.0f;
-		float green = 0.0f;
-		float blue = 0.0f;
-		
-		//ROBO
-		if(gameMap.getUnit(x,y) == TipoTerreno.ROBOT.getType()){
-			red = 1;
-		}
-		//GRAMA
-		else if(gameMap.getTerrain(x,y) == TipoTerreno.GRASS.getType()){
-			green = 1;
-		}
-		//AGUA
-		else if(gameMap.getTerrain(x,y) == TipoTerreno.WATER.getType()){
-			blue = 1;
-		}
-		//ARVORE
-		else if(gameMap.getTerrain(x,y) == TipoTerreno.WATER.getType()){
-			red = 1; 
-			green = 1; blue = 1;
-		}
-		
-		this.cubeRender.setRed(red);
-		this.cubeRender.setGreen(green);
-		this.cubeRender.setBlue(blue);
-		
-	}
-	*/
 	
 	public void keyPressed(KeyEvent e) 
 	{
