@@ -6,6 +6,7 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.util.ArrayList;
 
 import javax.media.opengl.DebugGL;
 import javax.media.opengl.GL;
@@ -16,6 +17,7 @@ import javax.media.opengl.glu.GLU;
 import org.furb.cg.engine.GameMap;
 import org.furb.cg.render.Axis;
 import org.furb.cg.render.Cube;
+import org.furb.cg.render.Cube3D;
 import org.furb.cg.util.TipoTerreno;
 
 import com.sun.opengl.util.Animator;
@@ -55,23 +57,15 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	private Cube cubeRender = null;
 	private Axis axisRender = null;    
 	
+	private ArrayList<Cube3D> mapa3D;
 	
-	private float[][] verts = {
-			{-1.0f,-1.0f, 1.0f}, // vertex 0
-			{-1.0f, 1.0f, 1.0f}, // 1
-			{ 1.0f, 1.0f, 1.0f}, // 2
-			{ 1.0f,-1.0f, 1.0f}, // 3
-			{-1.0f,-1.0f,-1.0f}, // 4
-			{-1.0f, 1.0f,-1.0f}, // 5
-			{ 1.0f, 1.0f,-1.0f}, // 6
-			{ 1.0f,-1.0f,-1.0f}, // 7
-			};
 	
 	public void init(GLAutoDrawable drawable) 
 	{
 		this.initEngine(drawable);
 		this.initConfig();
-		this.initRenders();	
+		this.initRenders();
+		this.initMap();
 	}
 	
 	private void initEngine(GLAutoDrawable drawable)
@@ -99,6 +93,25 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	{
 		this.cubeRender = new Cube(gl, glut);
 		this.axisRender = new Axis(gl, glut);
+		this.mapa3D =  new ArrayList<Cube3D>();
+	}
+	
+	private void initMap(){
+		
+		Cube3D cube3D = null;
+		
+		for (int y = 0; y < gameMap.getTerrain().length; y++ ) 
+		{
+			final int[] row = gameMap.getTerrain()[y];
+			
+			for( int x = 0; x < row.length; x++ )
+			{
+				cube3D = new Cube3D(this.gl, x,0,y);
+				cube3D.setMapXY(x, y);
+				this.mapa3D.add(cube3D);
+			}
+		}
+		
 	}
 	
 	private void initViewerPos()
@@ -128,7 +141,12 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	    gl.glRotatef(view_roty, 0.0f, 1.0f, 0.0f);
 	    gl.glRotatef(view_rotz, 0.0f, 0.0f, 1.0f);
 	    gl.glPushMatrix();
-
+	    
+	    for (Cube3D casa: this.mapa3D) {
+			casa.draw();
+		}
+	    
+	    /*
 		for (int y = 0; y < gameMap.getTerrain().length; y++ ) 
 		{
 			final int[] row = gameMap.getTerrain()[y];
@@ -145,43 +163,14 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 				this.cubeRender.draw();
 			}
 		}
-		
-		this.drawColourCube(this.gl);
-		
+		*/
+	    
 		gl.glPopMatrix();
 		gl.glPopMatrix();
 		gl.glFlush();
 	}
 
-	
-	private void drawColourCube(GL gl)
-	// six-sided cube, with a different color on each face
-	{
-	gl.glColor3f(1.0f, 0.0f, 0.0f); // red
-	drawPolygon(gl, 0, 3, 2, 1); // front face
-	gl.glColor3f(0.0f, 1.0f, 0.0f); // green
-	drawPolygon(gl, 2, 3, 7, 6); // right
-	gl.glColor3f(0.0f, 0.0f, 1.0f); // blue
-	drawPolygon(gl, 3, 0, 4, 7); // bottom
-	gl.glColor3f(1.0f, 1.0f, 0.0f); // yellow
-	drawPolygon(gl, 1, 2, 6, 5); // top
-	gl.glColor3f(0.0f, 1.0f, 1.0f); // light blue
-	drawPolygon(gl, 4, 5, 6, 7); // back
-	gl.glColor3f(1.0f, 0.0f, 1.0f); // purple
-	drawPolygon(gl, 5, 4, 0, 1); // left
-	} // end of drawColourCube()
-	private void drawPolygon(GL gl, int vIdx0, int vIdx1,
-	int vIdx2, int vIdx3)
-	// the polygon vertices come from the verts[] array
-	{
-	gl.glBegin(GL.GL_POLYGON);
-	gl.glVertex3f(verts[vIdx0][0],verts[vIdx0][1], verts[vIdx0][2] );
-	gl.glVertex3f(verts[vIdx1][0],verts[vIdx1][1], verts[vIdx1][2] );
-	gl.glVertex3f(verts[vIdx2][0],verts[vIdx2][1], verts[vIdx2][2] );
-	gl.glVertex3f(verts[vIdx3][0],verts[vIdx3][1], verts[vIdx3][2] );
-	gl.glEnd();
-	} // end of drawPolygon()
-	
+	/*
 	private void paintCell(int x, int y)
 	{
 		float red = 0.0f;
@@ -211,6 +200,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 		this.cubeRender.setBlue(blue);
 		
 	}
+	*/
 	
 	public void keyPressed(KeyEvent e) 
 	{
