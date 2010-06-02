@@ -63,24 +63,33 @@ public class Cube3D {
 		//desenha contornando o objeto
 		
 		//frente
-		drawPolygon(gl, 0, 3, 2, 1); 
+		drawPolygon(gl, 0, 3, 2, 1, false); 
 		//direita
-		drawPolygon(gl, 2, 3, 7, 6);
+		drawPolygon(gl, 2, 3, 7, 6, false);
 		//costas
-		drawPolygon(gl, 4, 5, 6, 7);
+		drawPolygon(gl, 4, 5, 6, 7, false);
 		//esquerda
-		drawPolygon(gl, 5, 4, 0, 1);		
+		drawPolygon(gl, 5, 4, 0, 1, false);		
 		
 		//cima
-		drawPolygon(gl, 1, 2, 6, 5);
+		drawPolygon(gl, 1, 2, 6, 5, true);
+		
 		//baixo
-		drawPolygon(gl, 3, 0, 4, 7);
+		drawPolygon(gl, 3, 0, 4, 7, false);
 	}
 	
-	private void drawPolygon(GL gl, int index1, int index2,int index3, int index4)
+	private void drawPolygon(GL gl, int index1, int index2,int index3, int index4, boolean solid)
 	{
 		this.setColor(gl);
-		gl.glBegin(GL.GL_LINE_LOOP);
+		
+		if(solid)
+		{
+			gl.glBegin(GL.GL_POLYGON);
+		}
+		else
+		{
+			gl.glBegin(GL.GL_LINE_LOOP);	
+		}		
 		
 		gl.glVertex3f(this.coordenadas.get(index1).getX(),this.coordenadas.get(index1).getY(), this.coordenadas.get(index1).getZ());
 		gl.glVertex3f(this.coordenadas.get(index2).getX(),this.coordenadas.get(index2).getY(), this.coordenadas.get(index2).getZ());
