@@ -5,7 +5,7 @@ import javax.media.opengl.GL;
 
 import org.furb.cg.util.TipoTerreno;
 
-public class Cube3D {
+public class Cube3D implements Object3D {
 
 	private GL gl;
 	private TipoTerreno tipoTerreno;

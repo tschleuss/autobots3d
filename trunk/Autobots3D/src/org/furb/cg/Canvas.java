@@ -17,6 +17,8 @@ import javax.media.opengl.glu.GLU;
 import org.furb.cg.engine.GameMap;
 import org.furb.cg.render.Axis;
 import org.furb.cg.render.Cube3D;
+import org.furb.cg.render.Object3D;
+import org.furb.cg.render.Robot;
 import org.furb.cg.util.TipoTerreno;
 
 import com.sun.opengl.util.Animator;
@@ -42,6 +44,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	private final static double SPEED = 1.5;
 	private final static double ANGLE_INCR = 5.0;
 	private final static double HEIGHT_STEP = 1.0;
+	private final static double DISTANCE_VIEW = 500.0f;
 	
 	private double xCamPos, yCamPos, zCamPos;
 	private double xLookAt, yLookAt, zLookAt;
@@ -54,7 +57,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	private int prevMouseX, prevMouseY;
 	private Axis axisRender = null;    
 	
-	private ArrayList<Cube3D> mapa3D;
+	private ArrayList<Object3D> mapa3D;
 	
 	
 	public void init(GLAutoDrawable drawable) 
@@ -83,7 +86,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	private void initRenders()
 	{
 		this.axisRender = new Axis(gl, glut);
-		this.mapa3D =  new ArrayList<Cube3D>();
+		this.mapa3D =  new ArrayList<Object3D>();
 	}
 	
 	private void initMap()
@@ -103,6 +106,10 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 				this.mapa3D.add(cube3D);
 			}
 		}
+		
+		Robot robot = new Robot(this.gl, 10 * 3 , 2 , 10 * 3 );
+		robot.setTipoTerreno(TipoTerreno.ROBOT);
+		this.mapa3D.add(robot);
 	}
 	
 	private void initViewerPos()
@@ -136,7 +143,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	    gl.glRotatef(view_rotz, 0.0f, 0.0f, 1.0f);
 	    gl.glPushMatrix();
 	    
-	    for (Cube3D casa: this.mapa3D) {
+	    for (Object3D casa: this.mapa3D) {
 			casa.draw();
 		}
 	    
@@ -249,7 +256,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 		gl.glMatrixMode(GL.GL_PROJECTION);
 		gl.glLoadIdentity();
 		aspectRatio = (float) height / (float) width;
-		gl.glFrustum(-1.0f, 1.0f, -aspectRatio, aspectRatio, 5.0f, 60.0f);
+		gl.glFrustum(-1.0f, 1.0f, -aspectRatio, aspectRatio, 5.0f, DISTANCE_VIEW);
 		
 		this.refreshRender();
 	}
