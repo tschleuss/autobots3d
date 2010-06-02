@@ -1,13 +1,13 @@
 package org.furb.cg.engine;
 
 import java.io.Serializable;
+import java.util.Random;
 
 import org.furb.cg.engine.heuristica.RastreadorCaminho;
 import org.furb.cg.engine.structs.Caminho;
 import org.furb.cg.engine.structs.Mover;
 import org.furb.cg.loader.MapParse;
 import org.furb.cg.util.TipoTerreno;
-
 public class GameMap implements Serializable {
 
 	private static final long serialVersionUID = -2650379924476210435L;
@@ -43,16 +43,28 @@ public class GameMap implements Serializable {
 		return caminho;
 	}
 	
-	private void loadBotPosition() {
+	private void loadBotPosition() 
+	{
+		int x, y;
 		
-//		botPosition bp;
-//		
-//		try {
-//			bp = this.autobotsRPC_cln.getBot();
-//			units[bp.y][bp.x] = TipoTerreno.ROBOT.getType();
-//		} catch (rpc_err e) {
-//			e.printStackTrace();
-//		}
+		boolean validpos = false;
+		
+		Random r = new Random();
+		
+		while(!validpos){
+			
+			x = r.nextInt(this.WIDTH);
+			y = r.nextInt(this.HEIGHT);
+			
+			if(getTerrain(x, y) == TipoTerreno.GRASS.getType()){
+
+				units[x][y] = TipoTerreno.ROBOT.getType();
+				
+				validpos = true;
+			}
+		}
+		
+		
 	}
 
 	private void loadMap() 
