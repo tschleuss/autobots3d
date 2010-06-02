@@ -6,7 +6,7 @@ import javax.media.opengl.GL;
 
 import org.furb.cg.util.TipoTerreno;
 
-public class Robot {
+public class Robot implements Object3D {
 	
 	private GL gl;
 	private TipoTerreno tipoTerreno;
@@ -80,7 +80,7 @@ public class Robot {
 	
 	private void drawPolygon(GL gl, int index1, int index2,int index3, int index4)
 	{
-		gl.glBegin(GL.GL_LINE_LOOP);
+		gl.glBegin(GL.GL_POLYGON);
 		
 		gl.glVertex3f(this.coordenadas.get(index1).getX(),this.coordenadas.get(index1).getY(), this.coordenadas.get(index1).getZ());
 		gl.glVertex3f(this.coordenadas.get(index2).getX(),this.coordenadas.get(index2).getY(), this.coordenadas.get(index2).getZ());
