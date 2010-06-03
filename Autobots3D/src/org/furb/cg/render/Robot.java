@@ -6,9 +6,10 @@ import javax.media.opengl.GL;
 
 import org.furb.cg.util.TipoTerreno;
 
-public class Robot implements Object3D {
-	
-	private GL gl;
+import com.sun.opengl.util.texture.TextureCoords;
+
+public class Robot implements Object3D 
+{
 	private TipoTerreno tipoTerreno;
 	
 	private ArrayList<Ponto> coordenadas;
@@ -19,9 +20,8 @@ public class Robot implements Object3D {
 	private int mapX;
 	private int mapY;
 	
-	public Robot(GL gl, int deslocX, int deslocY, int deslocZ)
+	public Robot(int deslocX, int deslocY, int deslocZ)
 	{
-		this.gl = gl;
 		this.coordenadas = new ArrayList<Ponto>();
 		this.initPoints(deslocX, deslocY, deslocZ);
 		
@@ -56,7 +56,7 @@ public class Robot implements Object3D {
 		this.coordenadas.add(p);
 	}
 	
-	public void draw()
+	public void draw(GL gl, TextureCoords tc)
 	{
 		//cor
 		gl.glColor3f(this.red, this.green, this.blue);

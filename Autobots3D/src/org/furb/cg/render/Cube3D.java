@@ -1,16 +1,18 @@
 package org.furb.cg.render;
 
 import java.util.ArrayList;
+
 import javax.media.opengl.GL;
 
 import org.furb.cg.util.TipoTerreno;
 
-public class Cube3D implements Object3D {
+import com.sun.opengl.util.texture.TextureCoords;
 
-	private GL gl;
+public class Cube3D implements Object3D 
+{
 	private TipoTerreno tipoTerreno;
-	
 	private ArrayList<Ponto> coordenadas;
+	
 	private float red;
 	private float green;
 	private float blue;
@@ -18,9 +20,8 @@ public class Cube3D implements Object3D {
 	private int mapX;
 	private int mapY;
 	
-	public Cube3D(GL gl, int deslocX, int deslocY, int deslocZ)
+	public Cube3D(int deslocX, int deslocY, int deslocZ)
 	{
-		this.gl = gl;
 		this.coordenadas = new ArrayList<Ponto>();
 		this.initPoints(deslocX, deslocY, deslocZ);
 		
@@ -55,75 +56,36 @@ public class Cube3D implements Object3D {
 		this.coordenadas.add(p);
 	}
 	
-	public void draw()
+	public void draw(GL gl,TextureCoords tc)
 	{
-		//cor
-		gl.glColor3f(this.red, this.green, this.blue);
+		//gl.glColor3f(this.red, this.green, this.blue); //cor
 		
 		//desenha contornando o objeto
-		
-		//frente
-		drawPolygon(gl, 0, 3, 2, 1, false); 
-		//direita
-		drawPolygon(gl, 2, 3, 7, 6, false);
-		//costas
-		drawPolygon(gl, 4, 5, 6, 7, false);
-		//esquerda
-		drawPolygon(gl, 5, 4, 0, 1, false);		
-		
-		//cima
-		drawPolygon(gl, 1, 2, 6, 5, true);
-		
-		//baixo
-		drawPolygon(gl, 3, 0, 4, 7, false);
+		drawPolygon(gl, 0, 3, 2, 1, false, tc); //frente
+		drawPolygon(gl, 2, 3, 7, 6, false, tc); //direita
+		drawPolygon(gl, 4, 5, 6, 7, false, tc); //costas
+		drawPolygon(gl, 5, 4, 0, 1, false, tc);	//esquerda
+		drawPolygon(gl, 1, 2, 6, 5, false, tc); //cima
+		drawPolygon(gl, 3, 0, 4, 7, false, tc); //baixo
 	}
 	
-	private void drawPolygon(GL gl, int index1, int index2,int index3, int index4, boolean solid)
+	private void drawPolygon(GL gl, int index1, int index2,int index3, int index4, boolean solid,TextureCoords tc)
 	{
-		this.setColor(gl);
+		gl.glBegin(GL.GL_QUADS);	
 		
-		if(solid)
-		{
-			gl.glBegin(GL.GL_POLYGON);
-		}
-		else
-		{
-			gl.glBegin(GL.GL_LINE_LOOP);	
-		}		
-		
+		gl.glTexCoord2f(tc.left(), tc.bottom());
 		gl.glVertex3f(this.coordenadas.get(index1).getX(),this.coordenadas.get(index1).getY(), this.coordenadas.get(index1).getZ());
+		
+		gl.glTexCoord2f(tc.right(), tc.bottom());
 		gl.glVertex3f(this.coordenadas.get(index2).getX(),this.coordenadas.get(index2).getY(), this.coordenadas.get(index2).getZ());
+		
+		gl.glTexCoord2f(tc.right(), tc.top());
 		gl.glVertex3f(this.coordenadas.get(index3).getX(),this.coordenadas.get(index3).getY(), this.coordenadas.get(index3).getZ());
+		
+		gl.glTexCoord2f(tc.left(), tc.top());
 		gl.glVertex3f(this.coordenadas.get(index4).getX(),this.coordenadas.get(index4).getY(), this.coordenadas.get(index4).getZ());
 		
 		gl.glEnd();
-		this.resetColor(gl);
-	}
-	
-	private void setColor(GL gl)
-	{
-		float red	= 0.0f;
-		float green	= 0.0f;
-		float blue	= 0.0f;
-
-		if( tipoTerreno == TipoTerreno.GRASS ) {
-			green = 1;
-		}
-		else if( tipoTerreno == TipoTerreno.WATER ) {
-			blue = 1;
-		}
-		else if( tipoTerreno == TipoTerreno.TREES ) {
-			red = 1; 
-			green = 1; 
-			blue = 1;
-		}
-		
-		gl.glColor3f(red, green, blue);
-	}
-	
-	private void resetColor(GL gl)
-	{
-		gl.glColor3f(0.0f, 0.0f, 0.0f);
 	}
 
 	public void setColor(float red, float green, float blue){
