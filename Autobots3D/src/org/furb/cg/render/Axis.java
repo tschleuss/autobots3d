@@ -17,19 +17,19 @@ public class Axis {
 		gl.glColor3f(1.0f, 0.0f, 0.0f);
 		gl.glBegin(GL.GL_LINES);
 		gl.glVertex3f(0.0f, 0.0f, 0.0f);
-		gl.glVertex3f(10.0f, 0.0f, 0.0f);
+		gl.glVertex3f(5.0f, 0.0f, 0.0f);
 		gl.glEnd();
 		// eixo Y - Green
 		gl.glColor3f(0.0f, 1.0f, 0.0f);
 		gl.glBegin(GL.GL_LINES);
 		gl.glVertex3f(0.0f, 0.0f, 0.0f);
-		gl.glVertex3f(0.0f, 10.0f, 0.0f);
+		gl.glVertex3f(0.0f, 5.0f, 0.0f);
 		gl.glEnd();
 		// eixo Z - Blue
 		gl.glColor3f(0.0f, 0.0f, 1.0f);
 		gl.glBegin(GL.GL_LINES);
 		gl.glVertex3f(0.0f, 0.0f, 0.0f);
-		gl.glVertex3f(0.0f, 0.0f, 10.0f);
+		gl.glVertex3f(0.0f, 0.0f, 5.0f);
 		gl.glEnd();
 	}
 }

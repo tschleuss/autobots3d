@@ -207,7 +207,6 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 		gl.glLoadIdentity();
 		
 		glu.gluLookAt(xCamPos, yCamPos, zCamPos, xLookAt, yLookAt, zLookAt, xUp, yUp,zUp);
-		
 		gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
 		
 		axisRender.draw(gl, null);

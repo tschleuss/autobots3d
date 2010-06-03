@@ -7,6 +7,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 import javax.media.opengl.GLCanvas;
+import javax.media.opengl.GLCapabilities;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -16,8 +17,8 @@ public class CanvasGL extends JFrame {
 
 	private static final long serialVersionUID = 2811420030112315612L;
 	
-	private static final int screenWidth = 700;
-	private static final int screenHeight = 600;
+	private static final int screenWidth = 1000;
+	private static final int screenHeight = 700;
 	
 	private FPSAnimator animator;
 	private CanvasGLListener listener;
@@ -58,7 +59,13 @@ public class CanvasGL extends JFrame {
 		renderPanel.setOpaque(false);
 		renderPanel.setPreferredSize( new Dimension(screenWidth,screenHeight) );
 
-		GLCanvas canvas = new GLCanvas();
+		GLCapabilities c = new GLCapabilities();
+		c.setRedBits(8);
+		c.setBlueBits(8);
+		c.setGreenBits(8);
+		c.setAlphaBits(8);
+		
+		GLCanvas canvas = new GLCanvas(c);
 		listener = new CanvasGLListener();
 		
 		canvas.addGLEventListener(listener);
