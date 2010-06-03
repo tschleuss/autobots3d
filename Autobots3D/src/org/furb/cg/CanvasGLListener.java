@@ -205,9 +205,13 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 				}
 			}
 			
-			currentTexture.bind();
-			gl.glTexEnvi(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_REPLACE);
-			tc = currentTexture.getImageTexCoords();
+			if( currentTexture != null ) 
+			{
+				currentTexture.bind();
+				gl.glTexEnvi(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_REPLACE);
+				tc = currentTexture.getImageTexCoords();
+			}
+			
 			obj3D.draw(gl, tc);
 		}
 
