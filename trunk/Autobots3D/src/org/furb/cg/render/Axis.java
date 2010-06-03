@@ -3,16 +3,15 @@ package org.furb.cg.render;
 
 import javax.media.opengl.GL;
 
-import com.sun.opengl.util.GLUT;
+import com.sun.opengl.util.texture.TextureCoords;
 
-public class Axis extends Base {
+public class Axis {
 
-	public Axis(GL gl, GLUT glut) {
-		super(gl, glut);
+	public Axis() {
+		super();
 	}
 
-	@Override
-	public void draw() 
+	public void draw(GL gl, TextureCoords tc) 
 	{
 		// eixo X - Red
 		gl.glColor3f(1.0f, 0.0f, 0.0f);

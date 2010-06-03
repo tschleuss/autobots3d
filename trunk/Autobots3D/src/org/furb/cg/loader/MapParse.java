@@ -1,28 +1,22 @@
 package org.furb.cg.loader;
 
 import java.io.BufferedReader;
+import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.furb.cg.loader.structs.MapConfig;
+import org.furb.cg.util.ResourceUtil;
 
 public class MapParse {
 	
-	private URL			source	=  null;
 	private MapConfig	mc		= null;
 	private int[][]		map		= null;
 	
 	public MapParse() 
 	{
-		try {
-			
-			this.source = new URL("file:src/org/furb/cg/resources/maps.list");
-			
-		} catch(Exception e) {
-			e.printStackTrace();
-		}
+		super();
 	}
 	
 	/**
@@ -73,6 +67,7 @@ public class MapParse {
 		List<String>	mapLines = null;
 		int[][]			map = null;
 		BufferedReader	in = null;
+		InputStream		is = null;
 		String			line = null;
 		
 		try {
@@ -80,7 +75,8 @@ public class MapParse {
 			//Carrega a lista com as linhas do mapa
 			mapLines = new ArrayList<String>();
 			
-			in = new BufferedReader( new InputStreamReader( this.source.openStream() ) );
+			is = ResourceUtil.getResource("/org/furb/cg/resources/maps.list", MapParse.class);
+			in = new BufferedReader( new InputStreamReader(is) );
 			
 			while( (line = in.readLine()) != null ) 
 			{
@@ -99,6 +95,10 @@ public class MapParse {
 				{
 					map[x][y] = Integer.valueOf(String.valueOf(currentLine.charAt(x)));
 				}
+			}
+			
+			if( is != null ) {
+				is.close();
 			}
 			
 		} catch(Exception e) {
