@@ -83,9 +83,32 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 		TextureLoader.getInstance();
 		initViewerPos();
 		initMap(gl);
+		initialCamPosition();
 
 		gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		gl.glEnable(GL.GL_DEPTH_TEST);
+	}
+	
+	/**
+	 * Inicializa a camera em uma posicao
+	 * especifica.
+	 */
+	private void initialCamPosition()
+	{
+		rotX		= 17.999998927116394;
+		rotY		= -225.00000250339508;
+		rotZ		= 0.0;
+		xCamPos 	= -5.87830463590729E-15;
+		yCamPos 	= 12.0;
+		zCamPos 	= 105.0;
+		xLookAt 	= 2.449293598294758E-16;
+		yLookAt 	= 11.0;
+		zLookAt 	= 5.0;
+		xStep		= 6.123233995736766E-17;
+		zStep		= -1.0;
+		viewAngle	= -90.0;
+		prevMouseX	= 553;
+		prevMouseY	= 459;
 	}
 	
 	/**
@@ -351,7 +374,7 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 			
 			case KeyEvent.VK_R:
 			{
-				this.initViewerPos();
+				initialCamPosition();
 				break;
 			}
 		}
