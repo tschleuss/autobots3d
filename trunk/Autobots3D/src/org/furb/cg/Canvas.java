@@ -100,17 +100,20 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 			
 			for( int x = 0; x < row.length; x++ )
 			{
-				cube3D = new Cube3D(this.gl, x * 3 , 0 , y * 3 );
-				cube3D = new Cube3D(this.gl, x * 3,0,y * 3);
-				cube3D.setMapXY(x, y);
+				if( gameMap.getUnit(y, x) == TipoTerreno.ROBOT.getType() )
+				{
+					Robot robot = new Robot(this.gl, y * 3 , 2 , x * 3 );
+					robot.setTipoTerreno(TipoTerreno.ROBOT);
+					this.mapa3D.add(robot);
+				}
+				
+				cube3D = new Cube3D(this.gl, y * 3 , 0 , x * 3 );
+				cube3D = new Cube3D(this.gl, y * 3 , 0 , x * 3 );
+				cube3D.setMapXY(y, x);
 				cube3D.setTipoTerreno( TipoTerreno.valueOf( row[x] ) );
 				this.mapa3D.add(cube3D);
 			}
 		}
-		
-		Robot robot = new Robot(this.gl, 10 * 3 , 2 , 10 * 3 );
-		robot.setTipoTerreno(TipoTerreno.ROBOT);
-		this.mapa3D.add(robot);
 	}
 	
 	private void initViewerPos()
