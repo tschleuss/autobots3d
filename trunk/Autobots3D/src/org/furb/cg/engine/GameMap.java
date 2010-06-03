@@ -23,7 +23,7 @@ public class GameMap implements Serializable {
 		loadMap();
 		loadBotPosition();
 	}
-
+	
 	public Caminho getFasterPath(int origemX, int origemY, int destinoX, int destinoY){
 		
 		this.units[origemX][origemY] = TipoTerreno.ROBOT.getType(); 
@@ -48,23 +48,20 @@ public class GameMap implements Serializable {
 		int x, y;
 		
 		boolean validpos = false;
-		
 		Random r = new Random();
+		units = new int[WIDTH][HEIGHT];
 		
-		while(!validpos){
+		while(!validpos)
+		{
+			x = r.nextInt(WIDTH);
+			y = r.nextInt(HEIGHT);
 			
-			x = r.nextInt(this.WIDTH);
-			y = r.nextInt(this.HEIGHT);
-			
-			if(getTerrain(x, y) == TipoTerreno.GRASS.getType()){
-
+			if( getTerrain(x, y) == TipoTerreno.GRASS.getType() )
+			{
 				units[x][y] = TipoTerreno.ROBOT.getType();
-				
 				validpos = true;
 			}
 		}
-		
-		
 	}
 
 	private void loadMap() 

@@ -16,6 +16,7 @@ public class Main {
             	canvasGL.setLocationRelativeTo(null);
         		canvasGL.setVisible(true);
         		canvasGL.requestFocus();
+        		canvasGL.getCanvas().requestFocus();
             }
         });
 	}
