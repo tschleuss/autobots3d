@@ -18,6 +18,7 @@ import org.furb.cg.loader.TextureLoader;
 import org.furb.cg.render.Axis;
 import org.furb.cg.render.Cube3D;
 import org.furb.cg.render.Object3D;
+import org.furb.cg.render.Robot;
 import org.furb.cg.util.TipoTerreno;
 
 import com.sun.opengl.util.texture.Texture;
@@ -128,6 +129,7 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 	 */
 	private void initMap(GL gl)
 	{
+		Robot robot = null;
 		Cube3D cube3D = null;
 		TipoTerreno tp = null;
 		
@@ -137,12 +139,24 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 			
 			for( int x = 0; x < row.length; x++ )
 			{
-				tp = TipoTerreno.valueOf( row[x] );
-				cube3D = new Cube3D(y * 2, 0, x * 2);
-				cube3D = new Cube3D(y * 2, 0, x * 2);
-				cube3D.setMapXY(y, x);
-				cube3D.setTipoTerreno(tp);
-				this.mapa3D.add(cube3D);
+				final int unit = gameMap.getUnit(y, x);
+				
+				if( unit == TipoTerreno.ROBOT.getType() )
+				{
+					robot = new Robot(y*2, 2, x*2);
+					robot.setTipoTerreno( TipoTerreno.ROBOT );
+					robot.setMapXY(y, x);
+					this.mapa3D.add(robot);
+				}
+				else {
+					
+					tp = TipoTerreno.valueOf( row[x] );
+					cube3D = new Cube3D(y*2, 0, x*2);
+					cube3D = new Cube3D(y*2, 0, x*2);
+					cube3D.setMapXY(y, x);
+					cube3D.setTipoTerreno(tp);
+					this.mapa3D.add(cube3D);	
+				}
 			}
 		}
 	}
@@ -168,17 +182,25 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 			switch (obj3D.getTipoTerreno()) 
 			{
 				case GRASS: {
+					gl.glEnable(GL.GL_TEXTURE_2D);
 					currentTexture = TextureLoader.getInstance().getGrassTex();
 					break;
 				}
 				
 				case TREES: {
+					gl.glEnable(GL.GL_TEXTURE_2D);
 					currentTexture = TextureLoader.getInstance().getGroundTex();
 					break;
 				}
 				
 				case WATER: {
+					gl.glEnable(GL.GL_TEXTURE_2D);
 					currentTexture = TextureLoader.getInstance().getWaterTex();
+					break;
+				}
+				
+				default: {
+					gl.glDisable(GL.GL_TEXTURE_2D);
 					break;
 				}
 			}
