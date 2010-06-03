@@ -148,15 +148,13 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 					robot.setMapXY(y, x);
 					this.mapa3D.add(robot);
 				}
-				else {
-					
-					tp = TipoTerreno.valueOf( row[x] );
-					cube3D = new Cube3D(y*2, 0, x*2);
-					cube3D = new Cube3D(y*2, 0, x*2);
-					cube3D.setMapXY(y, x);
-					cube3D.setTipoTerreno(tp);
-					this.mapa3D.add(cube3D);	
-				}
+
+				tp = TipoTerreno.valueOf( row[x] );
+				cube3D = new Cube3D(y*2, 0, x*2);
+				cube3D = new Cube3D(y*2, 0, x*2);
+				cube3D.setMapXY(y, x);
+				cube3D.setTipoTerreno(tp);
+				this.mapa3D.add(cube3D);
 			}
 		}
 	}
