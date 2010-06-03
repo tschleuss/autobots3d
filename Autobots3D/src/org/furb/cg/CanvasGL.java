@@ -20,6 +20,7 @@ public class CanvasGL extends JFrame {
 	private static final int screenWidth = 1000;
 	private static final int screenHeight = 700;
 	
+	private GLCanvas canvas;
 	private FPSAnimator animator;
 	private CanvasGLListener listener;
 	
@@ -65,7 +66,7 @@ public class CanvasGL extends JFrame {
 		c.setGreenBits(8);
 		c.setAlphaBits(8);
 		
-		GLCanvas canvas = new GLCanvas(c);
+		canvas = new GLCanvas(c);
 		listener = new CanvasGLListener();
 		
 		canvas.addGLEventListener(listener);
@@ -81,5 +82,9 @@ public class CanvasGL extends JFrame {
 	
 	public FPSAnimator getAnimator() {
 		return animator;
+	}
+
+	public GLCanvas getCanvas() {
+		return canvas;
 	}
 }

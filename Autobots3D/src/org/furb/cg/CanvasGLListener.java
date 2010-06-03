@@ -308,12 +308,6 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 		
 		switch ( keyCode ) 
 		{
-			case KeyEvent.VK_ESCAPE: 
-			{
-				System.exit(0);
-				break;
-			}
-			
 			case KeyEvent.VK_LEFT: 
 			{
 				if( e.isControlDown()) {
@@ -369,6 +363,12 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 					zCamPos -= zStep * SPEED;
 				}
 				
+				break;
+			}
+			
+			case KeyEvent.VK_ESCAPE: 
+			{
+				System.exit(0);
 				break;
 			}
 			
