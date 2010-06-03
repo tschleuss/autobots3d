@@ -79,6 +79,7 @@ public class Canvas implements GLEventListener, KeyListener, MouseMotionListener
 	
 	private void initConfig()
 	{
+		gl.glEnable(GL.GL_DEPTH_TEST);
 		gl.glClearColor(0, 0, 0, 1.0f);
 		this.initViewerPos();
 	}
