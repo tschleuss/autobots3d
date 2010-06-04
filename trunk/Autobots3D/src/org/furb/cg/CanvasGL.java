@@ -10,6 +10,7 @@ import javax.media.opengl.GLCanvas;
 import javax.media.opengl.GLCapabilities;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.WindowConstants;
 
 import com.sun.opengl.util.FPSAnimator;
 
@@ -26,7 +27,8 @@ public class CanvasGL extends JFrame {
 	
 	public CanvasGL(int fps)
 	{
-		super("Programa");
+		super("[Autobots3D] - FURB 2010 - Computacao Grafica");
+		super.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		
 		Container c = getContentPane();
 		c.setLayout( new BorderLayout() );
