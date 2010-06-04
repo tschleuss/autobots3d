@@ -19,28 +19,51 @@ public class GameMap implements Serializable {
 	private int[][]		units		= new int[WIDTH][HEIGHT];
 	private boolean[][]	visited		= new boolean[WIDTH][HEIGHT];
 
+	private static final boolean ALLOW_DIAGONAL_MOVE = false;
+	
 	public GameMap() {
 		loadMap();
 		loadBotPosition();
+		loadTargetPosition();
 	}
 	
-	public Caminho getFasterPath(int origemX, int origemY, int destinoX, int destinoY){
-		
-		this.units[origemX][origemY] = TipoTerreno.ROBOT.getType(); 
-		
+	public Caminho getFasterPath(int origemX, int origemY, int destinoX, int destinoY)
+	{
 		int tipo = this.getUnit(origemX, origemY);
 		Mover m = new Mover(tipo);
 		
 		return getPath(m, origemX, origemY,destinoX, destinoY );
-		
 	}
 	
-	private Caminho getPath(Mover mover,int origemX, int origemY, int destinoX, int destinoY){
-
-		RastreadorCaminho finder = new RastreadorCaminho(this, 500, true);
-		Caminho caminho = finder.findPath(mover, origemX, origemY, destinoX, destinoY,true);
+	private Caminho getPath(Mover mover,int origemX, int origemY, int destinoX, int destinoY)
+	{
+		RastreadorCaminho finder = new RastreadorCaminho(this, 500, ALLOW_DIAGONAL_MOVE);
+		Caminho caminho = finder.findPath(mover, origemX, origemY, destinoX, destinoY, ALLOW_DIAGONAL_MOVE);
 		
 		return caminho;
+	}
+	
+	private void loadTargetPosition()
+	{
+		int x, y;
+		
+		boolean validpos = false;
+		Random r = new Random();
+		
+		while(!validpos)
+		{
+			x = r.nextInt(WIDTH);
+			y = r.nextInt(HEIGHT);
+			
+			if( getTerrain(x, y) == TipoTerreno.GRASS.getType() )
+			{
+				if( getUnit(x, y) != TipoTerreno.ROBOT.getType() )
+				{
+					units[x][y] = TipoTerreno.TARGET.getType();
+					validpos = true;	
+				}
+			}
+		}
 	}
 	
 	private void loadBotPosition() 
@@ -98,7 +121,7 @@ public class GameMap implements Serializable {
 	
 	public boolean blocked(Mover mover, int x, int y) {
 
-		if (getUnit(x,y) != 0) {
+		if (getUnit(x,y) != 0 && getUnit(x, y) != 4) {
 			return true;
 		}
 		

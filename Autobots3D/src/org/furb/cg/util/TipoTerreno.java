@@ -2,10 +2,11 @@ package org.furb.cg.util;
 
 public enum TipoTerreno {
 
-	GRASS (0),
-	WATER (1),
-	TREES (2), 
-	ROBOT (3);
+	GRASS 	(0),
+	WATER 	(1),
+	TREES 	(2), 
+	ROBOT 	(3),
+	TARGET	(4);
 	
 	private int type;
 	

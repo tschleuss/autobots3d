@@ -3,7 +3,6 @@ package org.furb.cg.engine.structs;
 public class Passo{
 
 	private int x;
-
 	private int y;
 	
 	public Passo(int x, int y) {

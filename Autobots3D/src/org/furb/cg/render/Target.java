@@ -8,7 +8,7 @@ import org.furb.cg.util.TipoTerreno;
 
 import com.sun.opengl.util.texture.TextureCoords;
 
-public class Robot implements Object3D 
+public class Target implements Object3D 
 {
 	private TipoTerreno tipoTerreno;
 	
@@ -20,47 +20,40 @@ public class Robot implements Object3D
 	private int mapX;
 	private int mapY;
 	
-	public Robot(int deslocX, int deslocY, int deslocZ)
+	public Target(int deslocX, int deslocY, int deslocZ)
 	{
 		this.coordenadas = new ArrayList<Ponto>();
 		this.initPoints(deslocX, deslocY, deslocZ);
-		
-		this.setColor(1, 0,0);
+
+		this.setColor(1,1,0);
 		this.setMapXY(0,0);
 	}
 	
 	private void initPoints(int deslocX, int deslocY, int deslocZ){
 		
 		Ponto p = new Ponto(-1 + deslocX, -1 + deslocY, 1 + deslocZ, 0);
-		coordenadas.add(p);
+		this.coordenadas.add(p);
 		
 		p = new Ponto(-1+ deslocX, 1 + deslocY, 1 + deslocZ, 0);
-		coordenadas.add(p);
+		this.coordenadas.add(p);
 		
 		p = new Ponto( 1+ deslocX, 1 + deslocY, 1 + deslocZ, 0);
-		coordenadas.add(p);
+		this.coordenadas.add(p);
 		
 		p = new Ponto( 1+ deslocX, -1 + deslocY, 1 + deslocZ, 0);
-		coordenadas.add(p);
+		this.coordenadas.add(p);
 		
 		p = new Ponto( -1+ deslocX, -1 + deslocY, -1 + deslocZ, 0);
-		coordenadas.add(p);
+		this.coordenadas.add(p);
 		
 		p = new Ponto( -1+ deslocX, 1 + deslocY, -1 + deslocZ, 0);
-		coordenadas.add(p);
+		this.coordenadas.add(p);
 		
 		p = new Ponto( 1+ deslocX, 1 + deslocY, -1 + deslocZ, 0);
-		coordenadas.add(p);
+		this.coordenadas.add(p);
 		
 		p = new Ponto( 1+ deslocX, -1 + deslocY, -1 + deslocZ, 0);
-		coordenadas.add(p);
-	}
-	
-
-	public void moveTo(int deslocX, int deslocY, int deslocZ)
-	{
-		coordenadas.clear();
-		initPoints(deslocX, deslocY, deslocZ);
+		this.coordenadas.add(p);
 	}
 	
 	public void draw(GL gl, TextureCoords tc)
