@@ -252,6 +252,7 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 
 		gl.glDisable(GL.GL_TEXTURE_2D);
 		
+		//Desenha depois de desabilitar a textura.
 		robot.draw(gl, tc);
 		target.draw(gl, tc);
 		
@@ -316,8 +317,7 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 	
 	/**
 	 * Metodo que faz o robo calcular
-	 * o caminho ate o alvo, e andar
-	 * ate la.
+	 * o caminho ate o alvo e andar ate la.
 	 */
 	private void walkToTarget()
 	{
