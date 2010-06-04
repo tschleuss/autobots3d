@@ -1,14 +1,16 @@
 package org.furb.cg.engine.structs;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Caminho {
 
-	private ArrayList steps = new ArrayList();
-	private ArrayList<Passo> stepsOld = new ArrayList<Passo>();
+	private List<Passo> steps = new ArrayList<Passo>();
+	private List<Passo> stepsOld = new ArrayList<Passo>();
 	
-	public Caminho() {
-		
+	public Caminho() 
+	{
+		super();
 	}
 
 	public int getLength() {
@@ -19,7 +21,7 @@ public class Caminho {
 		return (Passo) steps.get(index);
 	}
 	
-	public ArrayList<Passo> getSteps(){
+	public List<Passo> getSteps(){
 		return steps;
 	}
 	
@@ -39,7 +41,6 @@ public class Caminho {
 		stepsOld.add(new Passo(x,y));
 	}
 	
-
 	public void prependStep(int x, int y) {
 		steps.add(0, new Passo(x, y));
 	}
@@ -52,7 +53,8 @@ public class Caminho {
 		return stepsOld.contains(new Passo(x,y));
 	}
 	
-	public Passo getLastStep(){
+	public Passo getLastStep()
+	{
 		if (getLength() > 0){
 			return getStep(getLength()-1);
 		}

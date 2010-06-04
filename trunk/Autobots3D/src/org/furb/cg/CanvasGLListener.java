@@ -14,11 +14,14 @@ import javax.media.opengl.GLEventListener;
 import javax.media.opengl.glu.GLU;
 
 import org.furb.cg.engine.GameMap;
+import org.furb.cg.engine.structs.Caminho;
+import org.furb.cg.engine.structs.Passo;
 import org.furb.cg.loader.TextureLoader;
 import org.furb.cg.render.Axis;
 import org.furb.cg.render.Cube3D;
 import org.furb.cg.render.Object3D;
 import org.furb.cg.render.Robot;
+import org.furb.cg.render.Target;
 import org.furb.cg.util.TipoTerreno;
 
 import com.sun.opengl.util.texture.Texture;
@@ -33,10 +36,15 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 	private final static double Z_POS			= 9.0;
 	private final static double DISTANCE_VIEW	= 500.0;
 	
+	private GLAutoDrawable		glDrawable	= null;
 	private GLU 				glu			= null;
 	private GameMap				gameMap 	= null;
 	private Axis				axisRender	= null; 
 	private ArrayList<Object3D> mapa3D		= null;
+	
+	//Robo, alvo e caminho entre eles
+	private Robot				robot		= null;
+	private Target				target		= null;
 	
 	private final double xUp = 0.0f;
 	private final double yUp = 1.0f;
@@ -78,6 +86,7 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 	public void init(GLAutoDrawable drawable) 
 	{
 		GL gl = drawable.getGL();
+		glDrawable = drawable;
 		glu = new GLU();
 		
 		TextureLoader.getInstance();
@@ -152,7 +161,6 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 	 */
 	private void initMap(GL gl)
 	{
-		Robot robot = null;
 		Cube3D cube3D = null;
 		TipoTerreno tp = null;
 		
@@ -169,9 +177,15 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 					robot = new Robot(y*2, 2, x*2);
 					robot.setTipoTerreno( TipoTerreno.ROBOT );
 					robot.setMapXY(y, x);
-					this.mapa3D.add(robot);
 				}
 
+				if( unit == TipoTerreno.TARGET.getType() )
+				{
+					target = new Target(y*2, 2, x*2);
+					target.setTipoTerreno( TipoTerreno.TARGET );
+					target.setMapXY(y, x);
+				}
+				
 				tp = TipoTerreno.valueOf( row[x] );
 				cube3D = new Cube3D(y*2, 0, x*2);
 				cube3D = new Cube3D(y*2, 0, x*2);
@@ -237,6 +251,10 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 		}
 
 		gl.glDisable(GL.GL_TEXTURE_2D);
+		
+		robot.draw(gl, tc);
+		target.draw(gl, tc);
+		
 		gl.glTexEnvi(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_MODULATE); 
 		gl.glDisable(GL.GL_ALPHA); 
 		gl.glDisable(GL.GL_BLEND);
@@ -294,6 +312,45 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 		
 		gl.glMatrixMode(GL.GL_MODELVIEW);
 		gl.glLoadIdentity();
+	}
+	
+	/**
+	 * Metodo que faz o robo calcular
+	 * o caminho ate o alvo, e andar
+	 * ate la.
+	 */
+	private void walkToTarget()
+	{
+		new Thread( new Runnable() 
+		{
+			Caminho path = gameMap.getFasterPath( 
+				robot.getMapX(), 
+				robot.getMapY(), 
+				target.getMapX(), 
+				target.getMapY() 
+			);
+			
+			public void run() 
+			{
+				try {
+					
+					if( path != null && path.getSteps() != null )
+					{
+						for(Passo step : path.getSteps())
+						{
+							robot.setMapXY(step.getX(), step.getY());
+							robot.moveTo(step.getX()*2, 2, step.getY()*2);
+							glDrawable.display();
+							Thread.sleep(500);
+						}	
+					}
+					
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+			
+		}).start();
 	}
 	
 	/**
@@ -375,6 +432,12 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 			case KeyEvent.VK_R:
 			{
 				initialCamPosition();
+				break;
+			}
+			
+			case KeyEvent.VK_SPACE:
+			{
+				walkToTarget();
 				break;
 			}
 		}
