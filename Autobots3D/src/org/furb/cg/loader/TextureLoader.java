@@ -41,7 +41,7 @@ public final class TextureLoader {
 	 */
 	private void loadTextures()
 	{
-		grassTex = loadTexture("/org/furb/cg/resources/grass2.jpg");
+		grassTex = loadTexture("/org/furb/cg/resources/grass.png");
 		waterTex = loadTexture("/org/furb/cg/resources/water.png");
 		groundTex = loadTexture("/org/furb/cg/resources/ground.jpg");
 	}
