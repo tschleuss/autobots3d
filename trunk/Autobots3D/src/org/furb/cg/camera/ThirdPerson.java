@@ -28,7 +28,7 @@ public class ThirdPerson extends Camera3D
 		yCamPos 	= 20;
 		zCamPos 	= 80;
 		
-		setXLookAt(0);
+		xLookAt		= 0;
 		yLookAt 	= 0;
 		zLookAt 	= 0;
 	}
