@@ -45,15 +45,6 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 	//Robo, alvo e caminho entre eles
 	private Robot				robot		= null;
 	private Target				target		= null;
-	
-	
-	//variaveis de rotacao
-	private double rotX;
-	private double rotY;
-	private double rotZ;
-	
-	private int prevMouseX;
-	private int prevMouseY;
 
 	private Camera3D camera;
 	
@@ -82,41 +73,11 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 		pickModel	= new PickModel(mapa3D, gl, glu);
 		
 		TextureLoader.getInstance();
-		//initViewerPos();
 		initMap(gl);
-		//initialCamPosition();
-
-		rotX = 0.0f;
-		rotY = 0.0f;
-		rotZ = 0.0f;
 		
 		gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		gl.glEnable(GL.GL_DEPTH_TEST);
 	}
-	
-	/**
-	 * Inicializa a camera em uma posicao
-	 * especifica.
-	private void initialCamPosition()
-	{
-	
-		rotX		= 17.999998927116394;
-		rotY		= -225.00000250339508;
-		rotZ		= 0.0;
-		xCamPos 	= -5.87830463590729E-15;
-		yCamPos 	= 12.0;
-		zCamPos 	= 105.0;
-		xLookAt 	= 2.449293598294758E-16;
-		yLookAt 	= 11.0;
-		zLookAt 	= 5.0;
-		xStep		= 6.123233995736766E-17;
-		zStep		= -1.0;
-		viewAngle	= -90.0;
-		prevMouseX	= 553;
-		prevMouseY	= 459;
-
-	}
-	 */
 	
 	/**
 	 * Metodo de callback do JOGL,
@@ -190,9 +151,9 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 		gl.glLoadIdentity();
 		
 		glu.gluLookAt(
-			 camera.getXCamPos(), camera.getYCamPos(), camera.getZCamPos()
-			,camera.getXLookAt(), camera.getYLookAt(), camera.getZLookAt()
-			,camera.getXUp(), camera.getYUp(), camera.getZUp()
+			camera.getXCamPos(),	camera.getYCamPos(),	camera.getZCamPos(),
+			camera.getXLookAt(),	camera.getYLookAt(),	camera.getZLookAt(),
+			camera.getXUp(), 		camera.getYUp(),		camera.getZUp()
 		 );
 		
 		gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
@@ -201,9 +162,9 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 
 		//aplica as rotacoes para os eixos x,y,z
 	    gl.glPushMatrix();
-	    gl.glRotated(rotX, 1.0f, 0.0f, 0.0f);
-	    gl.glRotated(rotY, 0.0f, 1.0f, 0.0f);
-	    gl.glRotated(rotZ, 0.0f, 0.0f, 1.0f);
+	    gl.glRotated(camera.getRotX(), 1.0f, 0.0f, 0.0f);
+	    gl.glRotated(camera.getRotY(), 0.0f, 1.0f, 0.0f);
+	    gl.glRotated(camera.getRotZ(), 0.0f, 0.0f, 1.0f);
 	    gl.glPushMatrix();
 		
     	pickModel.tryStartPicking();
@@ -383,7 +344,6 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 			
 			case KeyEvent.VK_R:
 			{
-				//initialCamPosition();
 				camera.resetPosition();
 				
 				break;
@@ -415,14 +375,14 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 	    int y = e.getY();
 	    Dimension size = e.getComponent().getSize();
 
-	    float thetaY = 360.0f * ( (float)(x-prevMouseX)/(float)size.width);
-	    float thetaX = 360.0f * ( (float)(prevMouseY-y)/(float)size.height);
+	    float thetaY = 360.0f * ( (float)(x-camera.getPrevMouseX())/(float)size.width);
+	    float thetaX = 360.0f * ( (float)(camera.getPrevMouseY()-y)/(float)size.height);
 	    
-	    prevMouseX = x;
-	    prevMouseY = y;
+	    camera.setPrevMouseX(x);
+	    camera.setPrevMouseY(y);
 
-	    rotX += thetaX;
-	    rotY += thetaY;
+	    camera.setRotX( camera.getRotX() + thetaX );
+	    camera.setRotY( camera.getRotY() + thetaY );
 	}
 
 	/**
@@ -434,14 +394,14 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 	 */
 	public void mousePressed(MouseEvent e) 
 	{
-		prevMouseX = e.getX();
-	    prevMouseY = e.getY();
+		camera.setPrevMouseX(e.getX());
+		camera.setPrevMouseY(e.getY());
 	    
 	    if( e.getButton() == MouseEvent.BUTTON3 || e.getButton() == MouseEvent.BUTTON2 )
 	    {
 	    	pickModel.setInSelectionMode(true);
-	    	pickModel.setClickX(prevMouseX);
-	    	pickModel.setClickY(prevMouseY);
+	    	pickModel.setClickX(camera.getPrevMouseX());
+	    	pickModel.setClickY(camera.getPrevMouseY());
 	    }
 	}
 	
