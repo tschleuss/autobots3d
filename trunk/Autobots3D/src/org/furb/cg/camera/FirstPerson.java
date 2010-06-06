@@ -35,22 +35,6 @@ public class FirstPerson  extends Camera3D {
 		xLookAt = (xCamPos + ( LOOK_AT_DIST * xStep ));
 		yLookAt = 0;
 		zLookAt = zCamPos + ( LOOK_AT_DIST * zStep );
-		
-		
-//		rotX		= 17.999998927116394;
-//		rotY		= -225.00000250339508;
-//		rotZ		= 0.0;
-//		xCamPos 	= -5.87830463590729E-15;
-//		yCamPos 	= 12.0;
-//		zCamPos 	= 105.0;
-//		xLookAt 	= 2.449293598294758E-16;
-//		yLookAt 	= 11.0;
-//		zLookAt 	= 5.0;
-//		xStep		= 6.123233995736766E-17;
-//		zStep		= -1.0;
-//		viewAngle	= -90.0;
-//		prevMouseX	= 553;
-//		prevMouseY	= 459;		
 	}
 	
 	@Override
