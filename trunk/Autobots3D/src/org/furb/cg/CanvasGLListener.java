@@ -35,7 +35,6 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 	
 	private final static double DISTANCE_VIEW	= 500.0;
 	
-	private GLAutoDrawable		glDrawable	= null;
 	private GLU 				glu			= null;
 	private GameMap				gameMap 	= null;
 	private Axis				axisRender	= null; 
@@ -68,7 +67,6 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 	public void init(GLAutoDrawable drawable) 
 	{
 		GL gl		= drawable.getGL();
-		glDrawable	= drawable;
 		glu			= new GLU();
 		pickModel	= new PickModel(mapa3D, gl, glu);
 		
@@ -310,12 +308,10 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 					
 					if( path != null && path.getSteps() != null )
 					{
-						
 						int newX, newZ;
 						
 						for(Passo step : path.getSteps())
 						{
-							
 							newX = step.getX()*2;
 							newZ = step.getY()*2;
 							
@@ -323,17 +319,20 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 							robot.moveTo(newX, 2, newZ);
 							
 							//Teste para camera em primeira pessoa
-							if( camera instanceof FirstPerson)
+							if(camera instanceof FirstPerson)
 							{
+								final int posAlvoX = target.getMapX()*2;
+								final int posAlvoZ = target.getMapY()*2;
+
 								camera.setXCamPos(newX);
 								camera.setYCamPos(2);
 								camera.setZCamPos(newZ);
-								camera.setXLookAt(target.getMapX()*2);
+								camera.setXLookAt(posAlvoX);
 								camera.setYLookAt(2);
-								camera.setZLookAt(target.getMapY()*2);
+								camera.setZLookAt(posAlvoZ);
 							}
 							
-							Thread.sleep(500);
+							Thread.sleep(100);
 						}	
 					}
 					
