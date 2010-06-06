@@ -1,6 +1,7 @@
 package org.furb.cg.render;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.media.opengl.GL;
 
@@ -10,9 +11,12 @@ import com.sun.opengl.util.texture.TextureCoords;
 
 public class Robot implements Object3D 
 {
-	private TipoTerreno tipoTerreno;
+	private int objectID;
+	private boolean bindTexture;
 	
-	private ArrayList<Ponto> coordenadas;
+	private TipoTerreno tipoTerreno;
+	private List<Ponto> coordenadas;
+	
 	private float red;
 	private float green;
 	private float blue;
@@ -27,6 +31,7 @@ public class Robot implements Object3D
 		
 		this.setColor(1, 0,0);
 		this.setMapXY(0,0);
+		this.setBindTexture(true);
 	}
 	
 	private void initPoints(int deslocX, int deslocY, int deslocZ){
@@ -63,26 +68,21 @@ public class Robot implements Object3D
 		initPoints(deslocX, deslocY, deslocZ);
 	}
 	
+	public void draw(GL gl)
+	{
+		gl.glColor3f(this.red, this.green, this.blue); //cor
+		
+		drawPolygon(gl, 0, 3, 2, 1); //frente
+		drawPolygon(gl, 2, 3, 7, 6); //direita
+		drawPolygon(gl, 4, 5, 6, 7); //costas
+		drawPolygon(gl, 5, 4, 0, 1); //esquerda
+		drawPolygon(gl, 1, 2, 6, 5); //cima
+		drawPolygon(gl, 3, 0, 4, 7); //baixo
+	}
+	
 	public void draw(GL gl, TextureCoords tc)
 	{
-		//cor
-		gl.glColor3f(this.red, this.green, this.blue);
-		
-		//desenha contornando o objeto
-		
-		//frente
-		drawPolygon(gl, 0, 3, 2, 1); 
-		//direita
-		drawPolygon(gl, 2, 3, 7, 6);
-		//costas
-		drawPolygon(gl, 4, 5, 6, 7);
-		//esquerda
-		drawPolygon(gl, 5, 4, 0, 1);		
-		
-		//cima
-		drawPolygon(gl, 1, 2, 6, 5);
-		//baixo
-		drawPolygon(gl, 3, 0, 4, 7);
+		return;
 	}
 	
 	private void drawPolygon(GL gl, int index1, int index2,int index3, int index4)
@@ -124,7 +124,7 @@ public class Robot implements Object3D
 		this.tipoTerreno = tipoTerreno;
 	}
 
-	public ArrayList<Ponto> getCoordenadas() {
+	public List<Ponto> getCoordenadas() {
 		return coordenadas;
 	}
 
@@ -162,5 +162,21 @@ public class Robot implements Object3D
 
 	public void setMapY(int mapY) {
 		this.mapY = mapY;
+	}
+
+	public int getObjectID() {
+		return this.objectID;
+	}
+
+	public void setObjectID(int id) {
+		this.objectID = id;
+	}
+
+	public boolean isBindTexture() {
+		return bindTexture;
+	}
+
+	public void setBindTexture(boolean bindTexture) {
+		this.bindTexture = bindTexture;
 	}
 }

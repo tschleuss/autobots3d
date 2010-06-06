@@ -7,6 +7,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.media.opengl.GL;
 import javax.media.opengl.GLAutoDrawable;
@@ -15,8 +16,8 @@ import javax.media.opengl.glu.GLU;
 
 import org.furb.cg.camera.Camera3D;
 import org.furb.cg.camera.FirstPerson;
-import org.furb.cg.camera.ThirdPerson;
 import org.furb.cg.engine.GameMap;
+import org.furb.cg.engine.PickModel;
 import org.furb.cg.engine.structs.Caminho;
 import org.furb.cg.engine.structs.Passo;
 import org.furb.cg.loader.TextureLoader;
@@ -31,14 +32,15 @@ import com.sun.opengl.util.texture.Texture;
 import com.sun.opengl.util.texture.TextureCoords;
 
 public class CanvasGLListener implements GLEventListener, KeyListener, MouseMotionListener, MouseListener {
-
+	
 	private final static double DISTANCE_VIEW	= 500.0;
 	
 	private GLAutoDrawable		glDrawable	= null;
 	private GLU 				glu			= null;
 	private GameMap				gameMap 	= null;
 	private Axis				axisRender	= null; 
-	private ArrayList<Object3D> mapa3D		= null;
+	private List<Object3D>		mapa3D		= null;
+	private PickModel			pickModel	= null;
 	
 	//Robo, alvo e caminho entre eles
 	private Robot				robot		= null;
@@ -74,9 +76,10 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 	 */
 	public void init(GLAutoDrawable drawable) 
 	{
-		GL gl = drawable.getGL();
-		glDrawable = drawable;
-		glu = new GLU();
+		GL gl		= drawable.getGL();
+		glDrawable	= drawable;
+		glu			= new GLU();
+		pickModel	= new PickModel(mapa3D, gl, glu);
 		
 		TextureLoader.getInstance();
 		//initViewerPos();
@@ -132,6 +135,7 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 	 */
 	private void initMap(GL gl)
 	{
+		int objectID = 0;
 		Cube3D cube3D = null;
 		TipoTerreno tp = null;
 		
@@ -153,9 +157,7 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 					robot = new Robot(newX, 2, newZ);
 					robot.setTipoTerreno( TipoTerreno.ROBOT );
 					robot.setMapXY(y, x);
-					
-					camera.setXLookAt(newX);
-					camera.setZLookAt(newZ);
+					robot.setObjectID(objectID++);
 				}
 
 				if( unit == TipoTerreno.TARGET.getType() )
@@ -163,15 +165,54 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 					target = new Target(newX, 2, newZ);
 					target.setTipoTerreno( TipoTerreno.TARGET );
 					target.setMapXY(y, x);
+					target.setObjectID(objectID++);
 				}
 				
 				tp = TipoTerreno.valueOf( row[x] );
 				cube3D = new Cube3D(newX, 0,newZ);
 				cube3D.setMapXY(y, x);
 				cube3D.setTipoTerreno(tp);
+				cube3D.setObjectID(objectID++);
 				this.mapa3D.add(cube3D);
 			}
 		}
+	}
+	
+	/**
+	 * Metodo chamado pelo metodo display,
+	 * sempre que a alteracoes para
+	 * serem renderizadas na tela do usuario.
+	 * @param gl
+	 */
+	private void renderScene(GL gl)
+	{
+		gl.glMatrixMode(GL.GL_MODELVIEW);
+		gl.glLoadIdentity();
+		
+		glu.gluLookAt(
+			 camera.getXCamPos(), camera.getYCamPos(), camera.getZCamPos()
+			,camera.getXLookAt(), camera.getYLookAt(), camera.getZLookAt()
+			,camera.getXUp(), camera.getYUp(), camera.getZUp()
+		 );
+		
+		gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
+		
+		axisRender.draw(gl, null);
+
+		//aplica as rotacoes para os eixos x,y,z
+	    gl.glPushMatrix();
+	    gl.glRotated(rotX, 1.0f, 0.0f, 0.0f);
+	    gl.glRotated(rotY, 0.0f, 1.0f, 0.0f);
+	    gl.glRotated(rotZ, 0.0f, 0.0f, 1.0f);
+	    gl.glPushMatrix();
+		
+    	pickModel.tryStartPicking();
+		drawnMap(gl);
+		pickModel.tryEndPicking();
+		
+		gl.glPopMatrix();
+		gl.glPopMatrix();
+		gl.glFlush();
 	}
 	
 	/**
@@ -192,6 +233,8 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 		
 		for( Object3D obj3D : mapa3D )
 		{
+			pickModel.tryPushObject(obj3D);
+			
 			switch (obj3D.getTipoTerreno()) 
 			{
 				case GRASS: {
@@ -218,61 +261,33 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 				}
 			}
 			
-			if( currentTexture != null ) 
+			if( currentTexture != null && obj3D.isBindTexture() ) 
 			{
 				currentTexture.bind();
 				gl.glTexEnvi(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_REPLACE);
 				tc = currentTexture.getImageTexCoords();
+				obj3D.draw(gl, tc);
+			}
+			else
+			{
+				gl.glDisable(GL.GL_TEXTURE_2D);
+				obj3D.draw(gl);
 			}
 			
-			obj3D.draw(gl, tc);
+			
+			pickModel.tryPopObject();
+			tc = null;
 		}
 
 		gl.glDisable(GL.GL_TEXTURE_2D);
 		
 		//Desenha depois de desabilitar a textura.
-		robot.draw(gl, tc);
-		target.draw(gl, tc);
+		robot.draw(gl);
+		target.draw(gl);
 		
 		gl.glTexEnvi(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_MODULATE); 
 		gl.glDisable(GL.GL_ALPHA); 
 		gl.glDisable(GL.GL_BLEND);
-	}
-	
-	/**
-	 * Metodo chamado pelo metodo display,
-	 * sempre que a alteracoes para
-	 * serem renderizadas na tela do usuario.
-	 * @param gl
-	 */
-	private void renderScene(GL gl)
-	{
-		gl.glMatrixMode(GL.GL_MODELVIEW);
-		gl.glLoadIdentity();
-
-		glu.gluLookAt(
-						 camera.getXCamPos(), camera.getYCamPos(), camera.getZCamPos()
-						,camera.getXLookAt(), camera.getYLookAt(), camera.getZLookAt()
-						,camera.getXUp(), camera.getYUp(), camera.getZUp()
-					 );
-		
-		gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
-		
-		axisRender.draw(gl, null);
-
-		//aplica as rotacoes para os eixos x,y,z
-	    gl.glPushMatrix();
-	    gl.glRotated(rotX, 1.0f, 0.0f, 0.0f);
-	    gl.glRotated(rotY, 0.0f, 1.0f, 0.0f);
-	    gl.glRotated(rotZ, 0.0f, 0.0f, 1.0f);
-	    gl.glPushMatrix();
-		
-	    drawnMap(gl);
-		
-		gl.glPopMatrix();
-		gl.glPopMatrix();
-		gl.glFlush();		
-
 	}
 	
 	/**
@@ -369,7 +384,6 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 			case KeyEvent.VK_R:
 			{
 				//initialCamPosition();
-				
 				camera.resetPosition();
 				
 				break;
@@ -422,6 +436,13 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 	{
 		prevMouseX = e.getX();
 	    prevMouseY = e.getY();
+	    
+	    if( e.getButton() == MouseEvent.BUTTON3 || e.getButton() == MouseEvent.BUTTON2 )
+	    {
+	    	pickModel.setInSelectionMode(true);
+	    	pickModel.setClickX(prevMouseX);
+	    	pickModel.setClickY(prevMouseY);
+	    }
 	}
 	
 	public void displayChanged(GLAutoDrawable drawable, boolean arg1, boolean arg2) {
