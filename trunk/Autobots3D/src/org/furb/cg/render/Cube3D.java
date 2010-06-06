@@ -1,6 +1,7 @@
 package org.furb.cg.render;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.media.opengl.GL;
 
@@ -12,8 +13,11 @@ import com.sun.opengl.util.texture.TextureCoords;
 
 public class Cube3D implements Object3D 
 {
+	private int objectID;
+	private boolean bindTexture;
+	
 	private TipoTerreno tipoTerreno;
-	private ArrayList<Ponto> coordenadas;
+	private List<Ponto> coordenadas;
 	
 	private float red;
 	private float green;
@@ -29,9 +33,9 @@ public class Cube3D implements Object3D
 		this.initPoints(deslocX, deslocY, deslocZ);
 		
 		this.groundTexture = TextureLoader.getInstance().getGroundTex();
-		
-		this.setColor(1, 0,0);
+		this.setColor(1,0,0);
 		this.setMapXY(0,0);
+		this.setBindTexture(true);
 	}
 	
 	private void initPoints(int deslocX, int deslocY, int deslocZ)
@@ -63,20 +67,43 @@ public class Cube3D implements Object3D
 	
 	public void draw(GL gl,TextureCoords tc)
 	{
-		//gl.glColor3f(this.red, this.green, this.blue); //cor
-		
 		//desenha contornando o objeto
-		drawPolygon(gl, 0, 3, 2, 1, false, tc); //frente
-		drawPolygon(gl, 2, 3, 7, 6, false, tc); //direita
-		drawPolygon(gl, 4, 5, 6, 7, false, tc); //costas
-		drawPolygon(gl, 5, 4, 0, 1, false, tc);	//esquerda
-		drawPolygon(gl, 1, 2, 6, 5, false, tc); //cima
+		drawPolygon(gl, 0, 3, 2, 1, tc); //frente
+		drawPolygon(gl, 2, 3, 7, 6, tc); //direita
+		drawPolygon(gl, 4, 5, 6, 7, tc); //costas
+		drawPolygon(gl, 5, 4, 0, 1, tc);	//esquerda
+		drawPolygon(gl, 1, 2, 6, 5, tc); //cima
 		
 		this.groundTexture.bind();
-		drawPolygon(gl, 3, 0, 4, 7, false, this.groundTexture.getImageTexCoords()); //baixo
+		drawPolygon(gl, 3, 0, 4, 7, this.groundTexture.getImageTexCoords()); //baixo
 	}
 	
-	private void drawPolygon(GL gl, int index1, int index2,int index3, int index4, boolean solid,TextureCoords tc)
+	public void draw(GL gl)
+	{
+		gl.glColor3f(this.red, this.green, this.blue); //cor
+		
+		//desenha contornando o objeto
+		drawPolygon(gl, 0, 3, 2, 1); //frente
+		drawPolygon(gl, 2, 3, 7, 6); //direita
+		drawPolygon(gl, 4, 5, 6, 7); //costas
+		drawPolygon(gl, 5, 4, 0, 1);	//esquerda
+		drawPolygon(gl, 1, 2, 6, 5); //cima
+		drawPolygon(gl, 3, 0, 4, 7); //baixo
+	}
+	
+	private void drawPolygon(GL gl, int index1, int index2,int index3, int index4)
+	{
+		gl.glBegin(GL.GL_POLYGON);	
+
+		gl.glVertex3f(this.coordenadas.get(index1).getX(),this.coordenadas.get(index1).getY(), this.coordenadas.get(index1).getZ());
+		gl.glVertex3f(this.coordenadas.get(index2).getX(),this.coordenadas.get(index2).getY(), this.coordenadas.get(index2).getZ());
+		gl.glVertex3f(this.coordenadas.get(index3).getX(),this.coordenadas.get(index3).getY(), this.coordenadas.get(index3).getZ());
+		gl.glVertex3f(this.coordenadas.get(index4).getX(),this.coordenadas.get(index4).getY(), this.coordenadas.get(index4).getZ());
+		
+		gl.glEnd();
+	}
+	
+	private void drawPolygon(GL gl, int index1, int index2,int index3, int index4, TextureCoords tc)
 	{
 		gl.glBegin(GL.GL_QUADS);	
 		
@@ -95,13 +122,15 @@ public class Cube3D implements Object3D
 		gl.glEnd();
 	}
 
-	public void setColor(float red, float green, float blue){
+	public void setColor(float red, float green, float blue)
+	{
 		this.red = red;
 		this.green = green;
 		this.blue = blue;
 	}
 
-	public void setMapXY(int mapX, int mapY) {
+	public void setMapXY(int mapX, int mapY) 
+	{
 		this.mapX = mapX;
 		this.mapY = mapY;
 	}
@@ -122,7 +151,7 @@ public class Cube3D implements Object3D
 		this.tipoTerreno = tipoTerreno;
 	}
 
-	public ArrayList<Ponto> getCoordenadas() {
+	public List<Ponto> getCoordenadas() {
 		return coordenadas;
 	}
 
@@ -160,5 +189,21 @@ public class Cube3D implements Object3D
 
 	public void setMapY(int mapY) {
 		this.mapY = mapY;
+	}
+
+	public int getObjectID() {
+		return this.objectID;
+	}
+
+	public void setObjectID(int id) {
+		this.objectID = id;
+	}
+
+	public boolean isBindTexture() {
+		return bindTexture;
+	}
+
+	public void setBindTexture(boolean bindTexture) {
+		this.bindTexture = bindTexture;
 	}
 }
