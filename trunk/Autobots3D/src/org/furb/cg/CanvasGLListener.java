@@ -137,6 +137,20 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 				this.mapa3D.add(cube3D);
 			}
 		}
+		
+		//Teste
+		if( camera instanceof FirstPerson)
+		{
+			//Posicao do robo
+			camera.setXCamPos( robot.getMapX() * 2 );
+			camera.setYCamPos(2);
+			camera.setZCamPos( robot.getMapY() * 2 );
+			
+			//Alvo da camera e o target
+			camera.setXLookAt( target.getMapX() * 2 );
+			camera.setYLookAt(2);
+			camera.setZLookAt( target.getMapY() * 2 );
+		}
 	}
 	
 	/**
@@ -308,10 +322,17 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 							robot.setMapXY(step.getX(), step.getY());
 							robot.moveTo(newX, 2, newZ);
 							
-							camera.setXLookAt(newX);
-							camera.setZLookAt(newZ);
+							//Teste para camera em primeira pessoa
+							if( camera instanceof FirstPerson)
+							{
+								camera.setXCamPos(newX);
+								camera.setYCamPos(2);
+								camera.setZCamPos(newZ);
+								camera.setXLookAt(target.getMapX()*2);
+								camera.setYLookAt(2);
+								camera.setZLookAt(target.getMapY()*2);
+							}
 							
-							glDrawable.display();
 							Thread.sleep(500);
 						}	
 					}
