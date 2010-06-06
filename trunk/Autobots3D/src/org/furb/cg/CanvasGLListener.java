@@ -13,6 +13,9 @@ import javax.media.opengl.GLAutoDrawable;
 import javax.media.opengl.GLEventListener;
 import javax.media.opengl.glu.GLU;
 
+import org.furb.cg.camera.Camera3D;
+import org.furb.cg.camera.FirstPerson;
+import org.furb.cg.camera.ThirdPerson;
 import org.furb.cg.engine.GameMap;
 import org.furb.cg.engine.structs.Caminho;
 import org.furb.cg.engine.structs.Passo;
@@ -29,11 +32,6 @@ import com.sun.opengl.util.texture.TextureCoords;
 
 public class CanvasGLListener implements GLEventListener, KeyListener, MouseMotionListener, MouseListener {
 
-	private final static double SPEED			= 1.5;
-	private final static double LOOK_AT_DIST	= 100.0;
-	private final static double ANGLE_INCR		= 5.0;
-	private final static double HEIGHT_STEP		= 1.0;
-	private final static double Z_POS			= 9.0;
 	private final static double DISTANCE_VIEW	= 500.0;
 	
 	private GLAutoDrawable		glDrawable	= null;
@@ -46,29 +44,17 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 	private Robot				robot		= null;
 	private Target				target		= null;
 	
-	private final double xUp = 0.0f;
-	private final double yUp = 1.0f;
-	private final double zUp = 0.0f;
 	
 	//variaveis de rotacao
 	private double rotX;
 	private double rotY;
 	private double rotZ;
-
-	//Movimentacao da camera
-	private double xCamPos;
-	private double yCamPos;
-	private double zCamPos;
-	private double xLookAt;
-	private double yLookAt;
-	private double zLookAt;
-	private double xStep;
-	private double zStep;
-	private double viewAngle;
 	
 	private int prevMouseX;
 	private int prevMouseY;
 
+	private Camera3D camera;
+	
 	/**
 	 * Construtor padrao
 	 */
@@ -77,6 +63,9 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 		this.gameMap = new GameMap();
 		this.mapa3D = new ArrayList<Object3D>();
 		this.axisRender = new Axis();
+		
+		//this.camera = new ThirdPerson();
+		this.camera = new FirstPerson();
 	}
 	
 	/**
@@ -90,10 +79,14 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 		glu = new GLU();
 		
 		TextureLoader.getInstance();
-		initViewerPos();
+		//initViewerPos();
 		initMap(gl);
-		initialCamPosition();
+		//initialCamPosition();
 
+		rotX = 0.0f;
+		rotY = 0.0f;
+		rotZ = 0.0f;
+		
 		gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		gl.glEnable(GL.GL_DEPTH_TEST);
 	}
@@ -101,9 +94,9 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 	/**
 	 * Inicializa a camera em uma posicao
 	 * especifica.
-	 */
 	private void initialCamPosition()
 	{
+	
 		rotX		= 17.999998927116394;
 		rotY		= -225.00000250339508;
 		rotZ		= 0.0;
@@ -118,7 +111,9 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 		viewAngle	= -90.0;
 		prevMouseX	= 553;
 		prevMouseY	= 459;
+
 	}
+	 */
 	
 	/**
 	 * Metodo de callback do JOGL,
@@ -132,30 +127,6 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 	}
 	
 	/**
-	 * Metodo que inicializa as
-	 * os atributos iniciais de
-	 * camera e movimentacao.
-	 */
-	private void initViewerPos()
-	{
-		rotX = 0.0f;
-		rotY = 0.0f;
-		rotZ = 0.0f;
-		
-		xCamPos = 0;
-		yCamPos = 1;
-		zCamPos = Z_POS;
-		
-		viewAngle = -90.0;
-		xStep = Math.cos( Math.toRadians(viewAngle) );
-		zStep = Math.sin( Math.toRadians(viewAngle) );
-		
-		xLookAt = xCamPos + ( LOOK_AT_DIST * xStep );
-		yLookAt = 0;
-		zLookAt = zCamPos + ( LOOK_AT_DIST * zStep );
-	}
-	
-	/**
 	 * Metodo que instancia o mapa.
 	 * @param gl
 	 */
@@ -163,6 +134,8 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 	{
 		Cube3D cube3D = null;
 		TipoTerreno tp = null;
+		
+		int newX, newZ;
 		
 		for (int y = 0; y < gameMap.getTerrain().length; y++ ) 
 		{
@@ -172,23 +145,28 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 			{
 				final int unit = gameMap.getUnit(y, x);
 				
+				newX = y*2;
+				newZ = x*2;
+				
 				if( unit == TipoTerreno.ROBOT.getType() )
 				{
-					robot = new Robot(y*2, 2, x*2);
+					robot = new Robot(newX, 2, newZ);
 					robot.setTipoTerreno( TipoTerreno.ROBOT );
 					robot.setMapXY(y, x);
+					
+					camera.setXLookAt(newX);
+					camera.setZLookAt(newZ);
 				}
 
 				if( unit == TipoTerreno.TARGET.getType() )
 				{
-					target = new Target(y*2, 2, x*2);
+					target = new Target(newX, 2, newZ);
 					target.setTipoTerreno( TipoTerreno.TARGET );
 					target.setMapXY(y, x);
 				}
 				
 				tp = TipoTerreno.valueOf( row[x] );
-				cube3D = new Cube3D(y*2, 0, x*2);
-				cube3D = new Cube3D(y*2, 0, x*2);
+				cube3D = new Cube3D(newX, 0,newZ);
 				cube3D.setMapXY(y, x);
 				cube3D.setTipoTerreno(tp);
 				this.mapa3D.add(cube3D);
@@ -271,8 +249,13 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 	{
 		gl.glMatrixMode(GL.GL_MODELVIEW);
 		gl.glLoadIdentity();
+
+		glu.gluLookAt(
+						 camera.getXCamPos(), camera.getYCamPos(), camera.getZCamPos()
+						,camera.getXLookAt(), camera.getYLookAt(), camera.getZLookAt()
+						,camera.getXUp(), camera.getYUp(), camera.getZUp()
+					 );
 		
-		glu.gluLookAt(xCamPos, yCamPos, zCamPos, xLookAt, yLookAt, zLookAt, xUp, yUp,zUp);
 		gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
 		
 		axisRender.draw(gl, null);
@@ -288,9 +271,10 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 		
 		gl.glPopMatrix();
 		gl.glPopMatrix();
-		gl.glFlush();
-	}
+		gl.glFlush();		
 
+	}
+	
 	/**
 	 * Metodo de callback do JOGL
 	 * chamado sempre que o usuario
@@ -336,10 +320,21 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 					
 					if( path != null && path.getSteps() != null )
 					{
+						
+						int newX, newZ;
+						
 						for(Passo step : path.getSteps())
 						{
+							
+							newX = step.getX()*2;
+							newZ = step.getY()*2;
+							
 							robot.setMapXY(step.getX(), step.getY());
-							robot.moveTo(step.getX()*2, 2, step.getY()*2);
+							robot.moveTo(newX, 2, newZ);
+							
+							camera.setXLookAt(newX);
+							camera.setZLookAt(newZ);
+							
 							glDrawable.display();
 							Thread.sleep(500);
 						}	
@@ -365,64 +360,6 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 		
 		switch ( keyCode ) 
 		{
-			case KeyEvent.VK_LEFT: 
-			{
-				if( e.isControlDown()) {
-					xCamPos += zStep * SPEED;
-					zCamPos -= xStep * SPEED;
-				}
-				else {
-					viewAngle -= ANGLE_INCR;
-					xStep = Math.cos( Math.toRadians(viewAngle) );
-					zStep = Math.sin( Math.toRadians(viewAngle) );
-				}
-				
-				break;
-			}
-			
-			case KeyEvent.VK_RIGHT: 
-			{
-				if( e.isControlDown()) {
-					xCamPos -= zStep * SPEED;
-					zCamPos += xStep * SPEED;
-				}
-				else {
-					viewAngle += ANGLE_INCR;
-					xStep = Math.cos( Math.toRadians(viewAngle) );
-					zStep = Math.sin( Math.toRadians(viewAngle) );
-				}
-				
-				break;
-			}
-			
-			case KeyEvent.VK_UP: 
-			{
-				if( e.isControlDown() ) {
-					yCamPos += HEIGHT_STEP;
-					yLookAt += HEIGHT_STEP;
- 				}
-				else {
-					xCamPos += xStep * SPEED;
-					zCamPos += zStep * SPEED;
-				}
-				
-				break;
-			}
-			
-			case KeyEvent.VK_DOWN: 
-			{
-				if( e.isControlDown() ) {
-					yCamPos -= HEIGHT_STEP;
-					yLookAt -= HEIGHT_STEP;
- 				}
-				else {
-					xCamPos -= xStep * SPEED;
-					zCamPos -= zStep * SPEED;
-				}
-				
-				break;
-			}
-			
 			case KeyEvent.VK_ESCAPE: 
 			{
 				System.exit(0);
@@ -431,7 +368,10 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 			
 			case KeyEvent.VK_R:
 			{
-				initialCamPosition();
+				//initialCamPosition();
+				
+				camera.resetPosition();
+				
 				break;
 			}
 			
@@ -440,12 +380,15 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 				walkToTarget();
 				break;
 			}
+			
+			default:
+			{
+				camera.move(keyCode, e.isControlDown());	
+				break;
+			}
 		}
-		
-		xLookAt = xCamPos + (xStep * LOOK_AT_DIST);
-		zLookAt = zCamPos + (zStep * LOOK_AT_DIST);
 	}
-
+	
 	/**
 	 * Metodo de callback chamado
 	 * sempre que o usuario clica e 

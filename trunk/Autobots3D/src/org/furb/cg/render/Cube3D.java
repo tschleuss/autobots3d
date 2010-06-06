@@ -4,8 +4,10 @@ import java.util.ArrayList;
 
 import javax.media.opengl.GL;
 
+import org.furb.cg.loader.TextureLoader;
 import org.furb.cg.util.TipoTerreno;
 
+import com.sun.opengl.util.texture.Texture;
 import com.sun.opengl.util.texture.TextureCoords;
 
 public class Cube3D implements Object3D 
@@ -19,11 +21,14 @@ public class Cube3D implements Object3D
 	
 	private int mapX;
 	private int mapY;
+	private Texture groundTexture;
 	
 	public Cube3D(int deslocX, int deslocY, int deslocZ)
 	{
 		this.coordenadas = new ArrayList<Ponto>();
 		this.initPoints(deslocX, deslocY, deslocZ);
+		
+		this.groundTexture = TextureLoader.getInstance().getGroundTex();
 		
 		this.setColor(1, 0,0);
 		this.setMapXY(0,0);
@@ -66,7 +71,9 @@ public class Cube3D implements Object3D
 		drawPolygon(gl, 4, 5, 6, 7, false, tc); //costas
 		drawPolygon(gl, 5, 4, 0, 1, false, tc);	//esquerda
 		drawPolygon(gl, 1, 2, 6, 5, false, tc); //cima
-		drawPolygon(gl, 3, 0, 4, 7, false, tc); //baixo
+		
+		this.groundTexture.bind();
+		drawPolygon(gl, 3, 0, 4, 7, false, this.groundTexture.getImageTexCoords()); //baixo
 	}
 	
 	private void drawPolygon(GL gl, int index1, int index2,int index3, int index4, boolean solid,TextureCoords tc)
