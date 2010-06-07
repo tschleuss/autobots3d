@@ -11,7 +11,6 @@ public class FirstPerson  extends Camera3D {
 	private final static double Z_POS			= 9.0;
 	
 	private double viewAngle;
-	
 	private double xStep;
 	private double zStep;
 	
@@ -23,6 +22,10 @@ public class FirstPerson  extends Camera3D {
 	@Override
 	protected void initialCamPosition() 
 	{
+		rotX = 0.0f;
+		rotY = 0.0f;
+		rotZ = 0.0f;
+		
 		xCamPos = 0;
 		yCamPos = 1;
 		zCamPos = Z_POS;
@@ -31,7 +34,7 @@ public class FirstPerson  extends Camera3D {
 		xStep = Math.cos( Math.toRadians(viewAngle) );
 		zStep = Math.sin( Math.toRadians(viewAngle) );
 		
-		xLookAt = (xCamPos + ( LOOK_AT_DIST * xStep ));
+		xLookAt = xCamPos + ( LOOK_AT_DIST * xStep );
 		yLookAt = 0;
 		zLookAt = zCamPos + ( LOOK_AT_DIST * zStep );
 	}
@@ -98,15 +101,9 @@ public class FirstPerson  extends Camera3D {
 				
 				break;
 			}
-			
-			case KeyEvent.VK_ESCAPE: 
-			{
-				System.exit(0);
-				break;
-			}
 		}
 		
-		xLookAt = (xCamPos + (xStep * LOOK_AT_DIST));
+		xLookAt = xCamPos + (xStep * LOOK_AT_DIST);
 		zLookAt = zCamPos + (zStep * LOOK_AT_DIST);
 	}
 }

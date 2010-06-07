@@ -18,8 +18,8 @@ public class CanvasGL extends JFrame {
 
 	private static final long serialVersionUID = 2811420030112315612L;
 	
-	private static final int screenWidth = 1000;
-	private static final int screenHeight = 700;
+	private static final int SCREEN_WIDTH = 1000;
+	private static final int SCREEN_HEIGHT = 700;
 	
 	private GLCanvas canvas;
 	private FPSAnimator animator;
@@ -60,7 +60,7 @@ public class CanvasGL extends JFrame {
 		JPanel renderPanel = new JPanel();
 		renderPanel.setLayout( new BorderLayout() );
 		renderPanel.setOpaque(false);
-		renderPanel.setPreferredSize( new Dimension(screenWidth,screenHeight) );
+		renderPanel.setPreferredSize( new Dimension(SCREEN_WIDTH,SCREEN_HEIGHT) );
 
 		GLCapabilities c = new GLCapabilities();
 		c.setRedBits(8);
