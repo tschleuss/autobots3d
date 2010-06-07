@@ -168,9 +168,9 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 	{
 		try {
 			
-			InputStream is = ResourceUtil.getResource("/org/furb/cg/resources/obj/tree.obj", CanvasGLListener.class);
+			InputStream is = ResourceUtil.getResource("/org/furb/cg/resources/obj/palmtree.obj", CanvasGLListener.class);
 	        BufferedReader treeBuf = new BufferedReader( new InputStreamReader(is) );
-	        tree = new GLModel(treeBuf, true, "/org/furb/cg/resources/obj/tree.mtl", gl);
+	        tree = new GLModel(treeBuf, true, "/org/furb/cg/resources/obj/palmtree.mtl", gl);
 
 	        if( treeBuf != null )
 	        {
@@ -220,7 +220,7 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 		pickModel.tryEndPicking();
 		
 		//MUITO PESADO
-		//drawnModels();
+		drawnModels();
 		
 		gl.glPopMatrix();
 		gl.glPopMatrix();
@@ -236,7 +236,7 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 		{
 	        gl.glPushMatrix();
 	        gl.glTranslatef(obj3D.getMapX()*2, 5, obj3D.getMapY()*2);
-	        gl.glScalef(3f, 3f, 3f);
+	        gl.glScalef(0.5f, 0.5f, 0.5f);
 	        tree.draw(gl);
 	        gl.glPopMatrix();
 		}

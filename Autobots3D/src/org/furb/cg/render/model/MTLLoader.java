@@ -17,7 +17,7 @@ public class MTLLoader {
 	}
 	
 	private void cleanup() {
-		materials.clear();
+		//materials.clear();
 	}
 	
 	public int getSize() {
