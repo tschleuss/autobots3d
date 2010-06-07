@@ -49,6 +49,7 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 	private PickModel			pickModel	= null;
 	
 	//Robo, alvo e caminho entre eles
+	private GLModel				r2d2 		= null;
 	private Robot				robot		= null;
 	private Target				target		= null;
 
@@ -171,11 +172,22 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 			InputStream is = ResourceUtil.getResource("/org/furb/cg/resources/obj/palmtree.obj", CanvasGLListener.class);
 	        BufferedReader treeBuf = new BufferedReader( new InputStreamReader(is) );
 	        tree = new GLModel(treeBuf, true, "/org/furb/cg/resources/obj/palmtree.mtl", gl);
-
+	        
 	        if( treeBuf != null )
 	        {
 	        	treeBuf.close();
 	        }
+
+			is = ResourceUtil.getResource("/org/furb/cg/resources/obj/r2d2.obj", CanvasGLListener.class);
+	        BufferedReader r2dBuf = new BufferedReader( new InputStreamReader(is) );
+	        r2d2 = new GLModel(r2dBuf, true, "/org/furb/cg/resources/obj/r2d2.mtl", gl);
+
+	        
+	        if( r2dBuf != null )
+	        {
+	        	r2dBuf.close();
+	        }
+	        
 	        
 	        if( is != null )
 	        {
@@ -235,11 +247,16 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 		for(Object3D obj3D : models)
 		{
 	        gl.glPushMatrix();
-	        gl.glTranslatef(obj3D.getMapX()*2, 6, obj3D.getMapY()*2);
-	        gl.glScalef(0.5f, 0.5f, 0.5f);
+	        gl.glTranslatef(obj3D.getMapX()*2, 3, obj3D.getMapY()*2);
+	        gl.glScalef(0.2f, 0.2f, 0.2f);
 	        tree.draw(gl);
 	        gl.glPopMatrix();
 		}
+		
+        gl.glPushMatrix();
+        gl.glTranslatef(robot.getMapX() * 2, 3, robot.getMapY()*2);
+        r2d2.draw(gl);
+        gl.glPopMatrix();
 	}
 	
 	/**
@@ -314,7 +331,7 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 		gl.glDisable(GL.GL_TEXTURE_2D);
 		
 		//Desenha depois de desabilitar a textura.
-		robot.draw(gl);
+		//robot.draw(gl);
 		target.draw(gl);
 		
 		gl.glTexEnvi(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_MODULATE); 
