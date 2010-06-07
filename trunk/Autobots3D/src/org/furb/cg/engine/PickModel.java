@@ -9,7 +9,6 @@ import javax.media.opengl.glu.GLU;
 import org.furb.cg.render.Object3D;
 
 import com.sun.opengl.util.BufferUtil;
-import com.sun.xml.internal.rngom.parse.host.Base;
 
 public class PickModel {
 
