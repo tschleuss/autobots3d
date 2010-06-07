@@ -9,6 +9,7 @@ import javax.media.opengl.glu.GLU;
 import org.furb.cg.render.Object3D;
 
 import com.sun.opengl.util.BufferUtil;
+import com.sun.xml.internal.rngom.parse.host.Base;
 
 public class PickModel {
 
@@ -57,7 +58,7 @@ public class PickModel {
 			final float aspectRatio = (float) SCREEN_WIDTH / (float) SCREEN_HEIGHT;
 			gl.glFrustum(-1.0f, 1.0f, -aspectRatio, aspectRatio, 5.0f, DISTANCE_VIEW);
 			
-			gl.glMatrixMode(GL.GL_MODELVIEW);	
+			gl.glMatrixMode(GL.GL_MODELVIEW);
 		}
 	}
 	

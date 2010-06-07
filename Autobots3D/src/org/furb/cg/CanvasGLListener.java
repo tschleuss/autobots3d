@@ -6,6 +6,9 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,6 +18,7 @@ import javax.media.opengl.GLEventListener;
 import javax.media.opengl.glu.GLU;
 
 import org.furb.cg.camera.Camera3D;
+import org.furb.cg.camera.CameraManager;
 import org.furb.cg.camera.FirstPerson;
 import org.furb.cg.engine.GameMap;
 import org.furb.cg.engine.PickModel;
@@ -26,6 +30,8 @@ import org.furb.cg.render.Cube3D;
 import org.furb.cg.render.Object3D;
 import org.furb.cg.render.Robot;
 import org.furb.cg.render.Target;
+import org.furb.cg.render.model.GLModel;
+import org.furb.cg.util.ResourceUtil;
 import org.furb.cg.util.TipoTerreno;
 
 import com.sun.opengl.util.texture.Texture;
@@ -35,6 +41,7 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 	
 	private final static double DISTANCE_VIEW	= 500.0;
 	
+	private GL					gl			= null;
 	private GLU 				glu			= null;
 	private GameMap				gameMap 	= null;
 	private Axis				axisRender	= null; 
@@ -45,19 +52,22 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 	private Robot				robot		= null;
 	private Target				target		= null;
 
+	//Camera
+	private CameraManager cameraManager;
 	private Camera3D camera;
+	
+	//Arvores
+	private List<Object3D> models = null;
+	private GLModel tree;
 	
 	/**
 	 * Construtor padrao
 	 */
 	public CanvasGLListener()
 	{
-		this.gameMap = new GameMap();
-		this.mapa3D = new ArrayList<Object3D>();
 		this.axisRender = new Axis();
-		
-		//this.camera = new ThirdPerson();
-		this.camera = new FirstPerson();
+		this.cameraManager = new CameraManager();
+		this.camera = cameraManager.atual();
 	}
 	
 	/**
@@ -66,12 +76,13 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 	 */
 	public void init(GLAutoDrawable drawable) 
 	{
-		GL gl		= drawable.getGL();
+		gl			= drawable.getGL();
 		glu			= new GLU();
 		pickModel	= new PickModel(mapa3D, gl, glu);
 		
 		TextureLoader.getInstance();
-		initMap(gl);
+		initMap();
+		initModels();
 		
 		gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		gl.glEnable(GL.GL_DEPTH_TEST);
@@ -84,16 +95,19 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 	 */
 	public void display(GLAutoDrawable drawable) 
 	{
-		GL gl = drawable.getGL();
-		renderScene(gl);
+		renderScene();
 	}
 	
 	/**
 	 * Metodo que instancia o mapa.
 	 * @param gl
 	 */
-	private void initMap(GL gl)
+	private void initMap()
 	{
+		this.gameMap = new GameMap();
+		this.mapa3D = new ArrayList<Object3D>();
+		this.models = new ArrayList<Object3D>();
+
 		int objectID = 0;
 		Cube3D cube3D = null;
 		TipoTerreno tp = null;
@@ -133,21 +147,43 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 				cube3D.setTipoTerreno(tp);
 				cube3D.setObjectID(objectID++);
 				this.mapa3D.add(cube3D);
+				
+				if( tp == TipoTerreno.TREES )
+				{
+					this.models.add(cube3D);
+				}
 			}
 		}
 		
-		//Teste
-		if( camera instanceof FirstPerson)
-		{
-			//Posicao do robo
-			camera.setXCamPos( robot.getMapX() * 2 );
-			camera.setYCamPos(2);
-			camera.setZCamPos( robot.getMapY() * 2 );
+		ajustCameraVision();
+	}
+	
+	/**
+	 * Inicializa os modelos
+	 * a serem importados, ou seja,
+	 * carrega o arquivo OBJ para a 
+	 * memoria, parseando linha por linha.
+	 */
+	private void initModels()
+	{
+		try {
 			
-			//Alvo da camera e o target
-			camera.setXLookAt( target.getMapX() * 2 );
-			camera.setYLookAt(2);
-			camera.setZLookAt( target.getMapY() * 2 );
+			InputStream is = ResourceUtil.getResource("/org/furb/cg/resources/obj/tree.obj", CanvasGLListener.class);
+	        BufferedReader treeBuf = new BufferedReader( new InputStreamReader(is) );
+	        tree = new GLModel(treeBuf, true, "/org/furb/cg/resources/obj/tree.mtl", gl);
+
+	        if( treeBuf != null )
+	        {
+	        	treeBuf.close();
+	        }
+	        
+	        if( is != null )
+	        {
+	        	is.close();
+	        }
+	        
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 	
@@ -157,7 +193,7 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 	 * serem renderizadas na tela do usuario.
 	 * @param gl
 	 */
-	private void renderScene(GL gl)
+	private void renderScene()
 	{
 		gl.glMatrixMode(GL.GL_MODELVIEW);
 		gl.glLoadIdentity();
@@ -180,8 +216,11 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 	    gl.glPushMatrix();
 		
     	pickModel.tryStartPicking();
-		drawnMap(gl);
+		drawnMap();
 		pickModel.tryEndPicking();
+		
+		//MUITO PESADO
+		//drawnModels();
 		
 		gl.glPopMatrix();
 		gl.glPopMatrix();
@@ -189,11 +228,25 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 	}
 	
 	/**
+	 * Desenha as arvores.
+	 */
+	private void drawnModels()
+	{
+		for(Object3D obj3D : models)
+		{
+	        gl.glPushMatrix();
+	        gl.glTranslatef(obj3D.getMapX()*2, 5, obj3D.getMapY()*2);
+	        gl.glScalef(3f, 3f, 3f);
+	        tree.draw(gl);
+	        gl.glPopMatrix();
+		}
+	}
+	
+	/**
 	 * Metodo que desenha o mapa
 	 * na tela do usuario.
-	 * @param gl
 	 */
-	private void drawnMap(GL gl)
+	private void drawnMap()
 	{
 		TextureCoords tc = null;
 		Texture currentTexture = null;
@@ -213,6 +266,12 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 				case GRASS: {
 					gl.glEnable(GL.GL_TEXTURE_2D);
 					currentTexture = TextureLoader.getInstance().getGrassTex();
+					break;
+				}
+				
+				case DIRT_GRASS: {
+					gl.glEnable(GL.GL_TEXTURE_2D);
+					currentTexture = TextureLoader.getInstance().getDirtGrassText();
 					break;
 				}
 				
@@ -317,20 +376,10 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 							
 							robot.setMapXY(step.getX(), step.getY());
 							robot.moveTo(newX, 2, newZ);
+							changeToDirtGrass(step.getX(), step.getY());
 							
 							//Teste para camera em primeira pessoa
-							if(camera instanceof FirstPerson)
-							{
-								final int posAlvoX = target.getMapX()*2;
-								final int posAlvoZ = target.getMapY()*2;
-
-								camera.setXCamPos(newX);
-								camera.setYCamPos(2);
-								camera.setZCamPos(newZ);
-								camera.setXLookAt(posAlvoX);
-								camera.setYLookAt(2);
-								camera.setZLookAt(posAlvoZ);
-							}
+							ajustCameraVision();
 							
 							Thread.sleep(100);
 						}	
@@ -342,6 +391,44 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 			}
 			
 		}).start();
+	}
+	
+	/**
+	 * Ajusta o angulo da camera de acordo
+	 * com o tipo de camera
+	 */
+	private void ajustCameraVision()
+	{
+		//Teste
+		if( camera instanceof FirstPerson )
+		{
+			//Posicao do robo
+			camera.setXCamPos( robot.getMapX() * 2 );
+			camera.setYCamPos(2);
+			camera.setZCamPos( robot.getMapY() * 2 );
+			
+			//Alvo da camera e o target
+			camera.setXLookAt( target.getMapX() * 2 );
+			camera.setYLookAt(2);
+			camera.setZLookAt( target.getMapY() * 2 );
+		}
+	}
+	
+	/**
+	 * Altera a grama para grama suja, como
+	 * se o robo tivesse a estragado
+	 * @param x
+	 * @param y
+	 */
+	public void changeToDirtGrass(int x, int y)
+	{
+		for(Object3D obj3D : mapa3D)
+		{
+			if( obj3D.getMapX() == x && obj3D.getMapY() == y )
+			{
+				obj3D.setTipoTerreno( TipoTerreno.DIRT_GRASS );
+			}
+		}
 	}
 	
 	/**
@@ -360,6 +447,21 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 			{
 				System.exit(0);
 				break;
+			}
+			
+			case KeyEvent.VK_C:
+			{
+				cameraManager.changeCamera();
+				camera = cameraManager.atual();
+				camera.resetPosition();
+			}
+			
+			case KeyEvent.VK_N:
+			{
+				if( e.isControlDown() )
+				{
+					initMap();
+				}
 			}
 			
 			case KeyEvent.VK_R:
@@ -420,8 +522,8 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 	    if( e.getButton() == MouseEvent.BUTTON3 || e.getButton() == MouseEvent.BUTTON2 )
 	    {
 	    	pickModel.setInSelectionMode(true);
-	    	pickModel.setClickX(camera.getPrevMouseX());
-	    	pickModel.setClickY(camera.getPrevMouseY());
+	    	pickModel.setClickX( camera.getPrevMouseX() );
+	    	pickModel.setClickY( camera.getPrevMouseY() );
 	    }
 	}
 	

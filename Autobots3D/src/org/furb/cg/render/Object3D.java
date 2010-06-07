@@ -26,6 +26,7 @@ public interface Object3D {
 	 * @return
 	 */
 	TipoTerreno getTipoTerreno();
+	void setTipoTerreno(TipoTerreno tipoTerreno);
 	
 	/**
 	 * Metodos para indicar se o objeto
@@ -50,4 +51,15 @@ public interface Object3D {
 	 */
 	void setObjectID(int id);
 	int getObjectID();
+	
+	/**
+	 * Metodo para setar e recuperar
+	 * a posicao X,Y no mapa do objeto
+	 * @return
+	 */
+	int getMapX();
+	int getMapY();
+	void setMapXY(int mapX, int mapY);
+	void setMapX(int mapX);
+	void setMapY(int mapY);
 }

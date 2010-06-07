@@ -18,6 +18,7 @@ public final class TextureLoader {
 	
 	//Texturas
 	private static Texture grassTex;
+	private static Texture dirtGrassText;
 	private static Texture waterTex;
 	private static Texture groundTex;
 	
@@ -42,6 +43,7 @@ public final class TextureLoader {
 	private void loadTextures()
 	{
 		grassTex = loadTexture("/org/furb/cg/resources/grass.png");
+		dirtGrassText = loadTexture("/org/furb/cg/resources/dirtGrass.png");
 		waterTex = loadTexture("/org/furb/cg/resources/water.png");
 		groundTex = loadTexture("/org/furb/cg/resources/ground.jpg");
 	}
@@ -78,5 +80,9 @@ public final class TextureLoader {
 
 	public Texture getGroundTex() {
 		return groundTex;
+	}
+
+	public Texture getDirtGrassText() {
+		return dirtGrassText;
 	}
 }

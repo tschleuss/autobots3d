@@ -121,7 +121,7 @@ public class GameMap implements Serializable {
 	
 	public boolean blocked(Mover mover, int x, int y) {
 
-		if (getUnit(x,y) != 0 && getUnit(x, y) != 4) {
+		if (getUnit(x,y) != 0 && getUnit(x, y) != TipoTerreno.TARGET.getType() ) {
 			return true;
 		}
 		
