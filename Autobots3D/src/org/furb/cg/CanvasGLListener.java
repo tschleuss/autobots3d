@@ -235,7 +235,7 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 		for(Object3D obj3D : models)
 		{
 	        gl.glPushMatrix();
-	        gl.glTranslatef(obj3D.getMapX()*2, 5, obj3D.getMapY()*2);
+	        gl.glTranslatef(obj3D.getMapX()*2, 6, obj3D.getMapY()*2);
 	        gl.glScalef(0.5f, 0.5f, 0.5f);
 	        tree.draw(gl);
 	        gl.glPopMatrix();
