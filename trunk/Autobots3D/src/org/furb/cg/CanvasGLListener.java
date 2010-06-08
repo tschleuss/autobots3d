@@ -28,7 +28,6 @@ import org.furb.cg.loader.TextureLoader;
 import org.furb.cg.render.Axis;
 import org.furb.cg.render.Cube3D;
 import org.furb.cg.render.Object3D;
-import org.furb.cg.render.Robot;
 import org.furb.cg.render.Target;
 import org.furb.cg.render.model.GLModel;
 import org.furb.cg.util.ResourceUtil;
@@ -50,7 +49,6 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 	
 	//Robo, alvo e caminho entre eles
 	private GLModel				r2d2 		= null;
-	private Robot				robot		= null;
 	private Target				target		= null;
 
 	//Camera
@@ -82,8 +80,8 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 		pickModel	= new PickModel(mapa3D, gl, glu);
 		
 		TextureLoader.getInstance();
-		initMap();
 		initModels();
+		initMap();
 		
 		gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		gl.glEnable(GL.GL_DEPTH_TEST);
@@ -128,10 +126,9 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 				
 				if( unit == TipoTerreno.ROBOT.getType() )
 				{
-					robot = new Robot(newX, 2, newZ);
-					robot.setTipoTerreno( TipoTerreno.ROBOT );
-					robot.setMapXY(y, x);
-					robot.setObjectID(objectID++);
+					r2d2.setTipoTerreno( TipoTerreno.ROBOT );
+					r2d2.setMapXY(y, x);
+					r2d2.setObjectID(objectID++);
 				}
 
 				if( unit == TipoTerreno.TARGET.getType() )
@@ -176,6 +173,11 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 	        if( treeBuf != null )
 	        {
 	        	treeBuf.close();
+	        }
+	        
+	        if( is != null )
+	        {
+	        	is.close();
 	        }
 
 			is = ResourceUtil.getResource("/org/furb/cg/resources/obj/r2d2.obj", CanvasGLListener.class);
@@ -231,7 +233,7 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 		drawnMap();
 		pickModel.tryEndPicking();
 		
-		//MUITO PESADO
+		//Desenha os modelos na tela
 		drawnModels();
 		
 		gl.glPopMatrix();
@@ -254,7 +256,7 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 		}
 		
         gl.glPushMatrix();
-        gl.glTranslatef(robot.getMapX() * 2, 3, robot.getMapY()*2);
+        gl.glTranslatef(r2d2.getMapX() * 2, 3, r2d2.getMapY()*2);
         r2d2.draw(gl);
         gl.glPopMatrix();
 	}
@@ -331,7 +333,6 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 		gl.glDisable(GL.GL_TEXTURE_2D);
 		
 		//Desenha depois de desabilitar a textura.
-		//robot.draw(gl);
 		target.draw(gl);
 		
 		gl.glTexEnvi(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_MODULATE); 
@@ -369,37 +370,31 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 	 */
 	private void walkToTarget()
 	{
-		new Thread( new Runnable() 
+		Thread mov = new Thread( new Runnable() 
 		{
-			Caminho path = gameMap.getFasterPath( 
-				robot.getMapX(), 
-				robot.getMapY(), 
-				target.getMapX(), 
-				target.getMapY() 
-			);
-			
 			public void run() 
 			{
+				Caminho path = gameMap.getFasterPath( 
+					r2d2.getMapX(), 
+					r2d2.getMapY(), 
+					target.getMapX(), 
+					target.getMapY() 
+				);
+				
 				try {
 					
 					if( path != null && path.getSteps() != null )
 					{
-						int newX, newZ;
-						
 						for(Passo step : path.getSteps())
 						{
-							newX = step.getX()*2;
-							newZ = step.getY()*2;
-							
-							robot.setMapXY(step.getX(), step.getY());
-							robot.moveTo(newX, 2, newZ);
+							r2d2.setMapXY(step.getX(), step.getY());
 							changeToDirtGrass(step.getX(), step.getY());
 							
 							//Teste para camera em primeira pessoa
 							ajustCameraVision();
 							
 							Thread.sleep(100);
-						}	
+						}
 					}
 					
 				} catch (InterruptedException e) {
@@ -407,7 +402,9 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 				}
 			}
 			
-		}).start();
+		});
+		
+		mov.start();
 	}
 	
 	/**
@@ -420,9 +417,9 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 		if( camera instanceof FirstPerson )
 		{
 			//Posicao do robo
-			camera.setXCamPos( robot.getMapX() * 2 );
+			camera.setXCamPos( r2d2.getMapX() * 2 );
 			camera.setYCamPos(2);
-			camera.setZCamPos( robot.getMapY() * 2 );
+			camera.setZCamPos( r2d2.getMapY() * 2 );
 			
 			//Alvo da camera e o target
 			camera.setXLookAt( target.getMapX() * 2 );
