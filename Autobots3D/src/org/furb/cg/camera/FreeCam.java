@@ -4,7 +4,7 @@ import java.awt.event.KeyEvent;
 
 public class FreeCam extends Camera3D {
 	
-	private final static double SPEED			= 1.5;
+	private final static double SPEED			= 3.5;
 	private final static double LOOK_AT_DIST	= 100.0;
 	private final static double ANGLE_INCR		= 5.0;
 	private final static double HEIGHT_STEP		= 1.0;
