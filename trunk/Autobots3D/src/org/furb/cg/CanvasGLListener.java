@@ -395,6 +395,12 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 							
 							Thread.sleep(100);
 						}
+						
+						if( camera instanceof FirstPerson )
+						{
+							camera.setXLookAt(0);
+							camera.setZLookAt(0);
+						}
 					}
 					
 				} catch (InterruptedException e) {

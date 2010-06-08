@@ -12,8 +12,8 @@ public class GameMap implements Serializable {
 
 	private static final long serialVersionUID = -2650379924476210435L;
 	
-	public static final int WIDTH = 30;
-	public static final int HEIGHT = 30;
+	public static int WIDTH = 0;
+	public static int HEIGHT = 0;
 	
 	private int[][]		terrain		= new int[WIDTH][HEIGHT];
 	private int[][]		units		= new int[WIDTH][HEIGHT];
@@ -90,6 +90,8 @@ public class GameMap implements Serializable {
 	private void loadMap() 
 	{
 		this.terrain = new MapParse().getMap();
+		WIDTH = terrain.length;
+		HEIGHT = terrain[0].length;
 	}
 
 	public void clearVisited() 
