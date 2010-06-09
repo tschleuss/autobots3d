@@ -20,6 +20,7 @@ import javax.media.opengl.glu.GLU;
 import org.furb.cg.camera.Camera3D;
 import org.furb.cg.camera.CameraManager;
 import org.furb.cg.camera.FirstPerson;
+import org.furb.cg.camera.ThirdPerson;
 import org.furb.cg.engine.GameMap;
 import org.furb.cg.engine.PickModel;
 import org.furb.cg.engine.structs.Caminho;
@@ -49,6 +50,15 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 	
 	//Robo, alvo e caminho entre eles
 	private GLModel				r2d2 		= null;
+
+	private float 				robotRotateAngle = 0f;
+	
+	private boolean				lookUp;
+	private boolean 			lookRight;
+	private boolean 			lookLeft;
+	
+	private Thread				threadRobot = null;
+	
 	private Target				target		= null;
 
 	//Camera
@@ -103,6 +113,11 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 	 */
 	private void initMap()
 	{
+		this.lookUp = true;
+		this.lookLeft = false;
+		this.lookRight = false;
+		this.robotRotateAngle = 0;
+		
 		this.gameMap = new GameMap();
 		this.mapa3D = new ArrayList<Object3D>();
 		this.models = new ArrayList<Object3D>();
@@ -257,6 +272,7 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 		
         gl.glPushMatrix();
         gl.glTranslatef(r2d2.getMapX() * 2, 3, r2d2.getMapY()*2);
+		gl.glRotatef(this.robotRotateAngle, 0.0f, 1.0f, 0.0f);
         r2d2.draw(gl);
         gl.glPopMatrix();
 	}
@@ -370,7 +386,7 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 	 */
 	private void walkToTarget()
 	{
-		Thread mov = new Thread( new Runnable() 
+		this.threadRobot = new Thread( new Runnable() 
 		{
 			public void run() 
 			{
@@ -385,15 +401,27 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 					
 					if( path != null && path.getSteps() != null )
 					{
+						int newX= 0, newZ= 0;
+						int oldX= -1, oldZ= -1;
+
 						for(Passo step : path.getSteps())
 						{
+
+							newX = step.getX();
+							newZ = step.getY();
+							
+							ajustRobotDirection(newX, oldX, newZ, oldZ);
+
+							oldX = newX;
+							oldZ = newZ;
+
 							r2d2.setMapXY(step.getX(), step.getY());
 							changeToDirtGrass(step.getX(), step.getY());
 							
 							//Teste para camera em primeira pessoa
 							ajustCameraVision();
 							
-							Thread.sleep(100);
+							Thread.sleep(300);
 						}
 						
 						if( camera instanceof FirstPerson )
@@ -410,9 +438,96 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 			
 		});
 		
-		mov.start();
+		this.threadRobot.start();
 	}
 	
+/**
+	 * Ajusta a direção do robô no mapa, de acordo
+	 * com sua posição antiga e sua posição nova
+	 */
+	private void ajustRobotDirection(int newX, int oldX, int newZ, int oldZ)
+	{
+		if(oldX !=-1 && oldZ != -1)
+		{
+			if(oldZ > newZ)
+			{
+				if(lookRight)
+				{
+					robotRotateAngle -= 90;
+					lookRight = false;
+				}
+				else if(lookLeft)
+				{
+					robotRotateAngle += 90;
+					lookLeft = false;
+				}
+				else if(lookUp)
+				{
+					robotRotateAngle += 180;
+					lookUp = false;
+				}
+			}
+			else if(oldZ < newZ)
+			{
+				if(lookRight)
+				{
+					robotRotateAngle += 90;
+					lookRight = false;
+				}
+				else if(lookLeft)
+				{
+					robotRotateAngle -= 90;
+					lookLeft = false;
+				}
+				else if(!lookUp)
+				{
+					robotRotateAngle -= 180;
+					lookUp = true;
+				}
+			}
+			
+			if(oldX > newX && !lookRight)
+			{
+				if(lookUp)
+				{
+					robotRotateAngle -= 90;
+				}
+				else
+				{
+					robotRotateAngle += 90;
+				}
+				lookRight = true;
+				lookLeft = false;
+			}
+			else if(oldX < newX && !lookLeft)
+			{
+				if(lookUp)
+				{
+					robotRotateAngle += 90;
+				}
+				else
+				{
+					robotRotateAngle -= 90;
+				}
+				lookRight = false;
+				lookLeft = true;
+			}
+			/*
+			else if(oldX == newX && (lookLeft || lookRight))
+			{
+				if(lookRight)
+				{
+					robotRotateAngle -= 90;
+				}
+				else
+				{
+					robotRotateAngle += 90;
+				}
+			}
+			*/
+		}
+	}
+
 	/**
 	 * Ajusta o angulo da camera de acordo
 	 * com o tipo de camera
@@ -474,12 +589,25 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 				cameraManager.changeCamera();
 				camera = cameraManager.atual();
 				camera.resetPosition();
+				
+				if( camera instanceof ThirdPerson )
+				{
+					camera.setXLookAt(r2d2.getMapX());
+					camera.setZLookAt(r2d2.getMapY());
+				}
+				
+				break;
 			}
 			
 			case KeyEvent.VK_N:
 			{
 				if( e.isControlDown() )
 				{
+
+					if(this.threadRobot != null){
+						this.threadRobot.stop();
+					}
+					
 					initMap();
 				}
 			}
