@@ -67,15 +67,18 @@ public class Cube3D implements Object3D
 	
 	public void draw(GL gl,TextureCoords tc)
 	{
-		//desenha contornando o objeto
-		drawPolygon(gl, 0, 3, 2, 1, tc); //frente
-		drawPolygon(gl, 2, 3, 7, 6, tc); //direita
-		drawPolygon(gl, 4, 5, 6, 7, tc); //costas
-		drawPolygon(gl, 5, 4, 0, 1, tc);	//esquerda
+		
 		drawPolygon(gl, 1, 2, 6, 5, tc); //cima
 		
+		TextureCoords gc = this.groundTexture.getImageTexCoords();
 		this.groundTexture.bind();
-		drawPolygon(gl, 3, 0, 4, 7, this.groundTexture.getImageTexCoords()); //baixo
+		
+		//desenha contornando o objeto
+		drawPolygon(gl, 0, 3, 2, 1, gc); //frente
+		drawPolygon(gl, 2, 3, 7, 6, gc); //direita
+		drawPolygon(gl, 4, 5, 6, 7, gc); //costas
+		drawPolygon(gl, 5, 4, 0, 1, gc);	//esquerda
+		drawPolygon(gl, 3, 0, 4, 7, gc); //baixo
 	}
 	
 	public void draw(GL gl)

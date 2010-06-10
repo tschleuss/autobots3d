@@ -1,9 +1,12 @@
 package org.furb.cg.loader;
 
+import java.awt.font.LineBreakMeasurer;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.furb.cg.loader.structs.MapConfig;
@@ -65,6 +68,7 @@ public class MapParse {
 	private int[][] readMap() 
 	{
 		List<String>	mapLines = null;
+		StringBuffer 	contents = new StringBuffer();
 		int[][]			map = null;
 		BufferedReader	in = null;
 		InputStream		is = null;
@@ -73,15 +77,26 @@ public class MapParse {
 		try {
 			
 			//Carrega a lista com as linhas do mapa
-			mapLines = new ArrayList<String>();
+			//mapLines = new ArrayList<String>();
 			
 			is = ResourceUtil.getResource("/org/furb/cg/resources/maps.list", MapParse.class);
 			in = new BufferedReader( new InputStreamReader(is) );
 			
 			while( (line = in.readLine()) != null ) 
 			{
-				mapLines.add(line);
+				contents.append(line + "\n");
+				//mapLines.add(line);
 			}
+			
+			//procura pelos divisores de mapas
+			String[] maps = contents.toString().split("->");
+			int mapNumber = 0 + (int)((maps.length - 0)*Math.random());  
+			
+			//busca o mapa selecionado e converte para um arrayList
+			mapLines = new ArrayList<String>(Arrays.asList(maps[mapNumber].split("\n")));
+			
+			//primeira posição é sempre vazia
+			mapLines.remove(0);
 			
 			//Carrega o vetor que vai armazenar o mapa
 			map = new int[mapLines.get(0).length()][mapLines.size()];

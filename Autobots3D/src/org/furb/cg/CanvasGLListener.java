@@ -29,7 +29,6 @@ import org.furb.cg.loader.TextureLoader;
 import org.furb.cg.render.Axis;
 import org.furb.cg.render.Cube3D;
 import org.furb.cg.render.Object3D;
-import org.furb.cg.render.Target;
 import org.furb.cg.render.model.GLModel;
 import org.furb.cg.util.ResourceUtil;
 import org.furb.cg.util.TipoTerreno;
@@ -50,17 +49,19 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 	
 	//Robo, alvo e caminho entre eles
 	private GLModel				r2d2 		= null;
-
-	private float 				robotRotateAngle = 0f;
+	private GLModel				cone = null;
+	
+	private float 				robotRotateAngle;
+	private float 				targetRotateAngle;
 	
 	private boolean				lookUp;
 	private boolean 			lookRight;
 	private boolean 			lookLeft;
+	private boolean				rotateTarget;
 	
 	private Thread				threadRobot = null;
+	private Thread				threadTarget = null;
 	
-	private Target				target		= null;
-
 	//Camera
 	private CameraManager cameraManager;
 	private Camera3D camera;
@@ -117,6 +118,8 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 		this.lookLeft = false;
 		this.lookRight = false;
 		this.robotRotateAngle = 0;
+		this.targetRotateAngle = 0;
+		this.rotateTarget = false;
 		
 		this.gameMap = new GameMap();
 		this.mapa3D = new ArrayList<Object3D>();
@@ -148,10 +151,9 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 
 				if( unit == TipoTerreno.TARGET.getType() )
 				{
-					target = new Target(newX, 2, newZ);
-					target.setTipoTerreno( TipoTerreno.TARGET );
-					target.setMapXY(y, x);
-					target.setObjectID(objectID++);
+					cone.setTipoTerreno( TipoTerreno.TARGET );
+					cone.setMapXY(y, x);
+					cone.setObjectID(objectID++);
 				}
 				
 				tp = TipoTerreno.valueOf( row[x] );
@@ -199,12 +201,24 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 	        BufferedReader r2dBuf = new BufferedReader( new InputStreamReader(is) );
 	        r2d2 = new GLModel(r2dBuf, true, "/org/furb/cg/resources/obj/r2d2.mtl", gl);
 
-	        
 	        if( r2dBuf != null )
 	        {
 	        	r2dBuf.close();
 	        }
 	        
+	        if( is != null )
+	        {
+	        	is.close();
+	        }
+	        
+			is = ResourceUtil.getResource("/org/furb/cg/resources/obj/cone.obj", CanvasGLListener.class);
+	        BufferedReader coneBuf = new BufferedReader( new InputStreamReader(is) );
+	        cone = new GLModel(coneBuf, true, "/org/furb/cg/resources/obj/cone.mtl", gl);
+
+	        if( coneBuf != null )
+	        {
+	        	coneBuf.close();
+	        }
 	        
 	        if( is != null )
 	        {
@@ -272,8 +286,26 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 		
         gl.glPushMatrix();
         gl.glTranslatef(r2d2.getMapX() * 2, 3, r2d2.getMapY()*2);
+        gl.glScalef(0.8f, 0.8f, 0.8f);
 		gl.glRotatef(this.robotRotateAngle, 0.0f, 1.0f, 0.0f);
         r2d2.draw(gl);
+        gl.glPopMatrix();
+        
+        gl.glPushMatrix();
+        
+        //robo alcançou o alvo
+        if(this.rotateTarget)
+        {
+            gl.glTranslatef(cone.getMapX() * 2, 6, cone.getMapY()*2);
+            gl.glRotatef(this.targetRotateAngle, 0.0f, 1.0f, 0.0f);
+        }
+        else
+        {
+            gl.glTranslatef(cone.getMapX() * 2, 2.5f, cone.getMapY()*2);
+        }
+
+        gl.glScalef(0.4f, 0.4f, 0.4f);
+        cone.draw(gl);
         gl.glPopMatrix();
 	}
 	
@@ -349,7 +381,7 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 		gl.glDisable(GL.GL_TEXTURE_2D);
 		
 		//Desenha depois de desabilitar a textura.
-		target.draw(gl);
+		//target.draw(gl);
 		
 		gl.glTexEnvi(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_MODULATE); 
 		gl.glDisable(GL.GL_ALPHA); 
@@ -393,8 +425,8 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 				Caminho path = gameMap.getFasterPath( 
 					r2d2.getMapX(), 
 					r2d2.getMapY(), 
-					target.getMapX(), 
-					target.getMapY() 
+					cone.getMapX(), 
+					cone.getMapY() 
 				);
 				
 				try {
@@ -421,7 +453,7 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 							//Teste para camera em primeira pessoa
 							ajustCameraVision();
 							
-							Thread.sleep(300);
+							Thread.sleep(200);
 						}
 						
 						if( camera instanceof FirstPerson )
@@ -429,6 +461,30 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 							camera.setXLookAt(0);
 							camera.setZLookAt(0);
 						}
+						
+						threadTarget = new Thread( new Runnable() 
+							{
+								public void run() 
+								{
+									rotateTarget = true;
+									
+									while(rotateTarget)
+									{
+										if(targetRotateAngle == 360)
+										{
+											targetRotateAngle = 0;
+										}
+										else
+										{
+											targetRotateAngle++;
+										}
+									}
+								}
+							}
+						);
+						
+						threadTarget.start();
+						
 					}
 					
 				} catch (InterruptedException e) {
@@ -526,6 +582,12 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 			}
 			*/
 		}
+		
+		if( camera instanceof ThirdPerson )
+		{
+			camera.setXLookAt(r2d2.getMapX() * 2);
+			camera.setZLookAt(r2d2.getMapY() * 2);
+		}
 	}
 
 	/**
@@ -534,7 +596,6 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 	 */
 	private void ajustCameraVision()
 	{
-		//Teste
 		if( camera instanceof FirstPerson )
 		{
 			//Posicao do robo
@@ -543,9 +604,15 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 			camera.setZCamPos( r2d2.getMapY() * 2 );
 			
 			//Alvo da camera e o target
-			camera.setXLookAt( target.getMapX() * 2 );
+			camera.setXLookAt( cone.getMapX() * 2 );
 			camera.setYLookAt(2);
-			camera.setZLookAt( target.getMapY() * 2 );
+			camera.setZLookAt( cone.getMapY() * 2 );
+		}
+		else if(camera instanceof ThirdPerson )
+		{
+			camera.setXLookAt( r2d2.getMapX() * 2 );
+			camera.setYLookAt(2);
+			camera.setZLookAt( r2d2.getMapY() * 2 );
 		}
 	}
 	
@@ -592,8 +659,8 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 				
 				if( camera instanceof ThirdPerson )
 				{
-					camera.setXLookAt(r2d2.getMapX());
-					camera.setZLookAt(r2d2.getMapY());
+					camera.setXLookAt(r2d2.getMapX() * 2);
+					camera.setZLookAt(r2d2.getMapY() * 2);
 				}
 				
 				break;
@@ -608,8 +675,14 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 						this.threadRobot.stop();
 					}
 					
+					if(rotateTarget)
+					{
+						rotateTarget = false;
+					}
+					
 					initMap();
 				}
+				break;
 			}
 			
 			case KeyEvent.VK_R:
