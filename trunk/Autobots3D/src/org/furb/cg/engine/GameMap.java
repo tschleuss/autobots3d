@@ -73,6 +73,7 @@ public class GameMap implements Serializable {
 		boolean validpos = false;
 		Random r = new Random();
 		units = new int[WIDTH][HEIGHT];
+		visited = new boolean[WIDTH][HEIGHT];
 		
 		while(!validpos)
 		{
