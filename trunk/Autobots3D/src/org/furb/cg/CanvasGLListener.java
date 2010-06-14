@@ -58,6 +58,7 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 	private boolean 			lookRight;
 	private boolean 			lookLeft;
 	private boolean				rotateTarget;
+	private boolean				drawnAxis = false;
 	
 	private Thread				threadRobot = null;
 	private Thread				threadTarget = null;
@@ -249,7 +250,10 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 		
 		gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
 		
-		axisRender.draw(gl, null);
+		if( drawnAxis ) 
+		{
+			axisRender.draw(gl, null);
+		}
 
 		//aplica as rotacoes para os eixos x,y,z
 	    gl.glPushMatrix();
@@ -568,19 +572,6 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 				lookRight = false;
 				lookLeft = true;
 			}
-			/*
-			else if(oldX == newX && (lookLeft || lookRight))
-			{
-				if(lookRight)
-				{
-					robotRotateAngle -= 90;
-				}
-				else
-				{
-					robotRotateAngle += 90;
-				}
-			}
-			*/
 		}
 		
 		if( camera instanceof ThirdPerson )
@@ -696,6 +687,11 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 			{
 				walkToTarget();
 				break;
+			}
+			
+			case KeyEvent.VK_A:
+			{
+				drawnAxis = !drawnAxis;
 			}
 			
 			default:
