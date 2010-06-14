@@ -22,7 +22,6 @@ import org.furb.cg.camera.CameraManager;
 import org.furb.cg.camera.FirstPerson;
 import org.furb.cg.camera.ThirdPerson;
 import org.furb.cg.engine.GameMap;
-import org.furb.cg.engine.PickModel;
 import org.furb.cg.engine.structs.Caminho;
 import org.furb.cg.engine.structs.Passo;
 import org.furb.cg.loader.TextureLoader;
@@ -45,7 +44,6 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 	private GameMap				gameMap 	= null;
 	private Axis				axisRender	= null; 
 	private List<Object3D>		mapa3D		= null;
-	private PickModel			pickModel	= null;
 	
 	//Robo, alvo e caminho entre eles
 	private GLModel				r2d2 		= null;
@@ -89,7 +87,6 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 	{
 		gl			= drawable.getGL();
 		glu			= new GLU();
-		pickModel	= new PickModel(mapa3D, gl, glu);
 		
 		TextureLoader.getInstance();
 		initModels();
@@ -262,11 +259,7 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 	    gl.glRotated(camera.getRotZ(), 0.0f, 0.0f, 1.0f);
 	    gl.glPushMatrix();
 		
-    	pickModel.tryStartPicking();
 		drawnMap();
-		pickModel.tryEndPicking();
-		
-		//Desenha os modelos na tela
 		drawnModels();
 		
 		gl.glPopMatrix();
@@ -289,7 +282,7 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 		}
 		
         gl.glPushMatrix();
-        gl.glTranslatef(r2d2.getMapX() * 2, 3, r2d2.getMapY()*2);
+        gl.glTranslatef(r2d2.getMapX() * 2, 2.7f, r2d2.getMapY()*2);
         gl.glScalef(0.8f, 0.8f, 0.8f);
 		gl.glRotatef(this.robotRotateAngle, 0.0f, 1.0f, 0.0f);
         r2d2.draw(gl);
@@ -305,7 +298,7 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
         }
         else
         {
-            gl.glTranslatef(cone.getMapX() * 2, 2.5f, cone.getMapY()*2);
+            gl.glTranslatef(cone.getMapX() * 2, 2.2f, cone.getMapY()*2);
         }
 
         gl.glScalef(0.4f, 0.4f, 0.4f);
@@ -330,8 +323,6 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 		
 		for( Object3D obj3D : mapa3D )
 		{
-			pickModel.tryPushObject(obj3D);
-			
 			switch (obj3D.getTipoTerreno()) 
 			{
 				case GRASS: {
@@ -376,17 +367,11 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 				gl.glDisable(GL.GL_TEXTURE_2D);
 				obj3D.draw(gl);
 			}
-			
-			
-			pickModel.tryPopObject();
+
 			tc = null;
 		}
 
 		gl.glDisable(GL.GL_TEXTURE_2D);
-		
-		//Desenha depois de desabilitar a textura.
-		//target.draw(gl);
-		
 		gl.glTexEnvi(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_MODULATE); 
 		gl.glDisable(GL.GL_ALPHA); 
 		gl.glDisable(GL.GL_BLEND);
@@ -666,11 +651,7 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 						this.threadRobot.stop();
 					}
 					
-					if(rotateTarget)
-					{
-						rotateTarget = false;
-					}
-					
+					rotateTarget = false;
 					initMap();
 				}
 				break;
@@ -735,13 +716,6 @@ public class CanvasGLListener implements GLEventListener, KeyListener, MouseMoti
 	{
 		camera.setPrevMouseX(e.getX());
 		camera.setPrevMouseY(e.getY());
-	    
-	    if( e.getButton() == MouseEvent.BUTTON3 || e.getButton() == MouseEvent.BUTTON2 )
-	    {
-	    	pickModel.setInSelectionMode(true);
-	    	pickModel.setClickX( camera.getPrevMouseX() );
-	    	pickModel.setClickY( camera.getPrevMouseY() );
-	    }
 	}
 	
 	public void displayChanged(GLAutoDrawable drawable, boolean arg1, boolean arg2) {
